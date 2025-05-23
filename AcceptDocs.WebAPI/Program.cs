@@ -26,7 +26,7 @@ namespace AcceptDocs.WebAPI
                 builder.Services.AddSwaggerGen();
 
                 builder.Services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlite("../database.db"));
+                    options.UseSqlite("Data Source=/../database.db"));
 
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
@@ -34,6 +34,7 @@ namespace AcceptDocs.WebAPI
                 //builder.Services.AddScoped<IValidator<!!DTO!!>, !!VALIDATOR!!>();
 
                 builder.Services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
+                builder.Services.AddScoped<DataSeeder>();
                 //repositories
                 //services
                 //middlewares
@@ -56,6 +57,11 @@ namespace AcceptDocs.WebAPI
                 app.UseAuthorization();
                 app.MapControllers();
                 app.UseCors("AcceptDocs");
+
+                using (var scope = app.Services.CreateScope()) {
+                    var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+                    dataSeeder.Seed();
+                }
 
                 app.Run();
 

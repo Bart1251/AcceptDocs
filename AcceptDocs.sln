@@ -9,13 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.BlazorClient", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.BlazorServer", "AcceptDocs.BlazorServer\AcceptDocs.BlazorServer.csproj", "{19659C73-CFE9-4FB5-888E-2060B15BE4FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptDocs.Application", "AcceptDocs.Application\AcceptDocs.Application.csproj", "{FE40040F-C5D3-49EF-AD26-E5DDDCB8AB61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.Application", "AcceptDocs.Application\AcceptDocs.Application.csproj", "{FE40040F-C5D3-49EF-AD26-E5DDDCB8AB61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptDocs.Domain", "AcceptDocs.Domain\AcceptDocs.Domain.csproj", "{46508144-1DA5-4870-8E0A-FA69194DA9B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.Domain", "AcceptDocs.Domain\AcceptDocs.Domain.csproj", "{46508144-1DA5-4870-8E0A-FA69194DA9B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptDocs.Infrastructure", "AcceptDocs.Infrastructure\AcceptDocs.Infrastructure.csproj", "{AD49228C-A4DB-4FA7-A689-4FC37B13D444}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.Infrastructure", "AcceptDocs.Infrastructure\AcceptDocs.Infrastructure.csproj", "{AD49228C-A4DB-4FA7-A689-4FC37B13D444}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptDocs.SharedKernel", "AcceptDocs.SharedKernel\AcceptDocs.SharedKernel.csproj", "{B5F23121-9594-4591-92CE-A8A07B8F0111}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptDocs.SharedKernel", "AcceptDocs.SharedKernel\AcceptDocs.SharedKernel.csproj", "{B5F23121-9594-4591-92CE-A8A07B8F0111}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

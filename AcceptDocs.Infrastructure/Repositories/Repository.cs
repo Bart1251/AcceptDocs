@@ -40,9 +40,10 @@ namespace AcceptDocs.Infrastructure.Repositories
                 .ToList();
         }
 
-        public void Insert(TEntity entity)
+        public int Insert(TEntity entity)
         {
             _context.Set<TEntity>().Add(entity);
+            return (int)typeof(TEntity).GetProperty(typeof(TEntity).Name + "Id").GetValue(entity);
         }
 
         public void Delete(TEntity entity)

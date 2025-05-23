@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AcceptDocs.Domain.Contracts
+﻿namespace AcceptDocs.Domain.Contracts
 {
     public interface IAppUnitOfWork : IDisposable
     {
+        public IUserRepository UserRepository { get; }
+        public IPositionLevelRepository PositionLevelRepository { get; }
         //repositories
 
         void Commit();

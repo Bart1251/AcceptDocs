@@ -1,0 +1,64 @@
+﻿@page "/user"
+@inject IUserService _userService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+
+<PageTitle>Użytkownicy</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Użytkownicy</h3>
+        <RadzenButton Text="Dodaj użytkownika" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("user/add"))" />
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px"/>
+            <RadzenDataGridColumn Property="FirstName" Title="Imię" />
+            <RadzenDataGridColumn Property="LastName" Title="Nazwisko" />
+            <RadzenDataGridColumn Property="Login" Title="Login" />
+            <RadzenDataGridColumn Title="Poziom stanowiska" >
+                <Template Context="user">
+                    @user.PositionLevel?.Name
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Position" Title="Stanowisko" />
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="user">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("user/update/" + user.UserId))"/>
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(user.UserId))"/>
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<UserDto> _users = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _users = _userService.GetAllWithPositionLevel();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć użytkownika?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+            {
+                OkButtonText = "Tak",
+                CancelButtonText = "Nie",
+            }
+        );
+
+        if(confirmed == true) {
+            _userService.Delete(id);
+            OnInitialized();
+        }
+    }
+}

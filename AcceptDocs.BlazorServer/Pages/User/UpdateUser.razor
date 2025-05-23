@@ -1,0 +1,84 @@
+﻿@page "/user/update/{id:int}"
+@inject IUserService _userService
+@inject IPositionLevelService _positionLevelService
+@inject NavigationManager _navigationManager
+
+<PageTitle>Edytuj użytkownika</PageTitle>
+
+<div class="d-flex flex-column gap-3 mx-3">
+    <div class="d-flex gap-3">
+        <h3>Edycja użytkownika</h3>
+        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("user"))" />
+    </div>
+
+    <RadzenCard>
+        <EditForm Model="@_user" OnValidSubmit="@SubmitUser">
+            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <ValidationSummary />
+
+            <RadzenRow Gap="1rem">
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Imię">
+                            <RadzenTextBox @bind-Value="@_user.FirstName" Name="FirstName" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Nazwisko">
+                            <RadzenTextBox @bind-Value="@_user.LastName" Name="LastName" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Login">
+                            <RadzenTextBox @bind-Value="@_user.Login" Name="Login" />
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Hasło">
+                            <RadzenPassword @bind-Value="@_user.Password" Name="Password" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Poziom stanowiska">
+                            <RadzenDropDown @bind-Value="@_user.PositionLevelId" Placeholder="Wybierz poziom stanowiska" Data="@_positionLevels" TextProperty="Name" ValueProperty="PositionLevelId" Name="PositionLevelId" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Stanowisko">
+                            <RadzenTextBox @bind-Value="@_user.Position" Name="Position" />
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenButton Text="Wyślij" ButtonType="ButtonType.Submit" />
+            </RadzenRow>
+        </EditForm>
+    </RadzenCard>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private FluentValidationValidator? _fluentValidationValidator;
+    private UpdateUserDto _user = new();
+    private List<PositionLevelDto> _positionLevels = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _positionLevels = _positionLevelService.GetAll();
+        var user = _userService.GetWithPositionLevel(Id);
+        _user = new UpdateUserDto()
+        {
+            UserId = user.UserId,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Login = user.Login,
+            Password = user.Password,
+            PositionLevelId = user.PositionLevel.PositionLevelId,
+            Position = user.Position,
+        };
+    }
+
+    private void SubmitUser()
+    {
+        _userService.Update(_user);
+        _navigationManager.NavigateTo("user");
+    }
+}
