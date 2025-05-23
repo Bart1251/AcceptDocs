@@ -1,12 +1,17 @@
-﻿using System.Xml.Linq;
+﻿using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace AcceptDocs.SharedKernel.Dto
 {
     public enum DocumentStatusDto
     {
+        [Description("Utworzony")]
         Created,
+        [Description("Czekający na zaakceptowanie")]
         WaitingForApproval,
+        [Description("Zaakceptowany")]
         Approved,
+        [Description("Odrzucony")]
         NotApproved,
     }
 

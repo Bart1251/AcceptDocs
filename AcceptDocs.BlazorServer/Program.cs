@@ -35,9 +35,13 @@ namespace AcceptDocs.BlazorServer
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPositionLevelService, PositionLevelService>();
             builder.Services.AddScoped<IPositionLevelRepository, PositionLevelRepository>();
+            builder.Services.AddScoped<IDocumentFlowService, DocumentFlowService>();
+            builder.Services.AddScoped<IDocumentFlowRepository, DocumentFlowRepository>();
 
             builder.Services.AddScoped<IValidator<AddUserDto>, RegisterAddUserDtoValidator>();
             builder.Services.AddScoped<IValidator<UpdateUserDto>, RegisterUpdateUserDtoValidator>();
+            builder.Services.AddScoped<IValidator<AddDocumentFlowDto>, RegisterAddDocumentFlowDtoValidator>();
+            builder.Services.AddScoped<IValidator<UpdateDocumentFlowDto>, RegisterUpdateDocumentFlowDtoValidator>();
 
             builder.Services.AddRadzenComponents();
 

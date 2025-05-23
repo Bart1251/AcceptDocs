@@ -1,5 +1,4 @@
 ﻿using AcceptDocs.Domain.Models;
-using AcceptDocs.SharedKernel.Dto;
 
 namespace AcceptDocs.Domain.Contracts
 {

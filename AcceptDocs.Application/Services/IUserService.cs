@@ -8,6 +8,6 @@ namespace AcceptDocs.Application.Services
         List<UserDto> GetAllWithPositionLevel();
         void Delete(int id);
         UserDto GetWithPositionLevel(int id);
-        public void Update(UpdateUserDto dto);
+        void Update(UpdateUserDto dto);
     }
 }

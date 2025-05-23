@@ -1,0 +1,74 @@
+﻿@page "/flow"
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDocumentFlowService _documentFlowService
+
+<PageTitle>Flow dokumentów</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Flow dokumentów</h3>
+        <RadzenButton Text="Dodaj flow" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow/add"))" />
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_flows" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="DocumentFlowId" Title="Id" Width="100px" />
+            <RadzenDataGridColumn Property="Name" Title="Nazwa" >
+                <Template Context="flow">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="3px" AlignItems="AlignItems.Center">
+                        <span>@flow.Name</span>
+                        <RadzenIcon Icon="help" title="@flow.Description" style="cursor: pointer;" />
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Metoda selekcji">
+                <Template Context="flow">
+                    @EnumHelper.GetDescription(flow.SelectionMethod)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Value" Title="Kryterium wartości" />
+            <RadzenDataGridColumn Title="Przypisane osoby">
+                <Template Context="flow">
+                    <a href="flow/users">Przypisanych: @flow.Users.Count</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="flow">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("flow/update/" + flow.DocumentFlowId))" />
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(flow.DocumentFlowId))" />
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<DocumentFlowDto> _flows = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _flows = _documentFlowService.GetAll();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć flow?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+        );
+
+        if (confirmed == true) {
+            _documentFlowService.Delete(id);
+            OnInitialized();
+        }
+    }
+}

@@ -1,0 +1,57 @@
+﻿@page "/flow/add"
+@inject NavigationManager _navigationManager
+@inject IDocumentFlowService _documentFlowService
+
+<PageTitle>Dodaj flow</PageTitle>
+
+<div class="d-flex flex-column gap-3 mx-3">
+    <div class="d-flex gap-3">
+        <h3>Dodawanie flow</h3>
+        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow"))" />
+    </div>
+
+    <RadzenCard>
+        <EditForm Model="@_flow" OnValidSubmit="@SubmitFlow">
+            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <ValidationSummary />
+
+            <RadzenStack Gap="1rem">
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack>
+                            <RadzenFormField Text="Nazwa">
+                                <RadzenTextBox @bind-Value="@_flow.Name" Name="Name" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Metoda selekcji">
+                                <RadzenDropDown @bind-Value="@_flow.SelectionMethod" Placeholder="Wybierz metodę selekcji" Data="@_selectionMethods" TextProperty="Name" ValueProperty="Value" Name="SelectionMethod" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Opis">
+                                <RadzenTextArea @bind-Value="@_flow.Description" Name="Description" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Kryterium wartości">
+                                <RadzenNumeric @bind-Value="@_flow.Value" Name="Value" />
+                            </RadzenFormField>
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenButton Text="Zatwierdź" ButtonType="ButtonType.Submit" />
+                </RadzenStack>
+            </RadzenStack>
+        </EditForm>
+    </RadzenCard>
+</div>
+
+
+
+@code {
+    private FluentValidationValidator? _fluentValidationValidator;
+    private AddDocumentFlowDto _flow = new();
+    private List<EnumItem<SelectionMethodDto>> _selectionMethods = EnumHelper.GetEnumList<SelectionMethodDto>();
+
+    private void SubmitFlow()
+    {
+        _documentFlowService.Create(_flow);
+        _navigationManager.NavigateTo("flow");
+    }
+}
