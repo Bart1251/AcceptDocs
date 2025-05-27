@@ -11,6 +11,7 @@ namespace AcceptDocs.Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<AcceptanceRequest> AcceptanceRequests { get; set; }
         public DbSet<DocumentFlow> DocumentFlows { get; set; }
+        public DbSet<DocumentFlowUser> DocumentFlowUsers { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

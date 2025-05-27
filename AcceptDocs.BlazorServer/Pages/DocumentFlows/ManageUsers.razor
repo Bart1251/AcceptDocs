@@ -1,0 +1,124 @@
+﻿@page "/flow/users/{id:int}"
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDocumentFlowService _documentFlowService
+
+<PageTitle>Przypisane osoby</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Zarządzaj przypisanymi do flow @_flowName</h3>
+        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow"))" />
+    </div>
+    <RadzenRow Gap="1rem">
+        <RadzenColumn Size="12" SizeSM="6">
+            <h4>Dodani do flow</h4>
+            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_attachedUsers" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+                <Columns>
+                    <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
+                    <RadzenDataGridColumn Property="FirstName" Title="Imię" />
+                    <RadzenDataGridColumn Property="LastName" Title="Nazwisko" />
+                    <RadzenDataGridColumn Property="Position" Title="Stanowisko" />
+                    <RadzenDataGridColumn Property="Value" Title="Kryterium wartości" />
+                    <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                        <Template Context="user">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => Edit(user.UserId))" />
+                                <RadzenButton Icon="arrow_forward" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="@(() => DetachUser(user.UserId))" />
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <h4>Dostępni by dołączyć</h4>
+            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+                <Columns>
+                    <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
+                    <RadzenDataGridColumn Property="FirstName" Title="Imię" />
+                    <RadzenDataGridColumn Property="LastName" Title="Nazwisko" />
+                    <RadzenDataGridColumn Property="Position" Title="Stanowisko" />
+                    <RadzenDataGridColumn Title="Akcje" Width="80px" Sortable="false" Filterable="false">
+                        <Template Context="user">
+                            <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="@(() => AttachUser(user.UserId))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenColumn>
+    </RadzenRow>
+    
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string _flowName = "";
+    private List<DocumentFlowUserDto> _attachedUsers = new();
+    private List<UserDto> _users = new();
+    private AttachUserDto _attachmentModel = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _flowName = _documentFlowService.Get(Id).Name;
+        _attachedUsers = _documentFlowService.GetAttachedUsers(Id);
+        _users = _documentFlowService.GetNotAttachedUsers(Id);
+    }
+
+    private async Task AttachUser(int userId)
+    {
+        var result = await _dialogService.OpenAsync<ValueForm>(
+            "Dodaj kryterium wartości dla dodawanego użytkownika",
+            new Dictionary<string, object>() {
+                { "AttachmentModel", _attachmentModel }
+            },
+            new DialogOptions() { Width = "500px", Height = "auto", Resizable = true }
+        );
+
+        if(result is AttachUserDto att) {
+            att.UserId = userId;
+            att.DocumentFlowId = Id;
+            _documentFlowService.AttachUser(att);
+            OnInitialized();
+        }
+    }
+
+    private async Task DetachUser(int userId)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz odłączyć użytkownika z flow?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+            {
+                OkButtonText = "Tak",
+                CancelButtonText = "Nie",
+            }
+        );
+
+        if(confirmed == true) {
+            _documentFlowService.DetachUser(Id, userId);
+            OnInitialized();
+        }
+    }
+
+    private async Task Edit(int userId)
+    {
+        var result = await _dialogService.OpenAsync<ValueForm>(
+            "Zmień kryterium wartości dla użytkownika",
+            new Dictionary<string, object>() {
+                { "AttachmentModel", _attachmentModel }
+            },
+            new DialogOptions() { Width = "500px", Height = "auto", Resizable = true }
+        );
+
+        if(result is AttachUserDto att) {
+            att.UserId = userId;
+            att.DocumentFlowId = Id;
+            _documentFlowService.UpdateAttachedUserValue(att);
+            OnInitialized();
+        }
+    }
+}

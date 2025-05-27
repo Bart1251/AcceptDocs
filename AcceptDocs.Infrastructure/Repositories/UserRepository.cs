@@ -14,22 +14,22 @@ namespace AcceptDocs.Infrastructure.Repositories
 
         public List<User> GetAllWithPositionLevel()
         {
-            return _context.Users.AsNoTracking().Include(u => u.PositionLevel).ToList();
+            return _context.Users.Include(u => u.PositionLevel).ToList();
         }
 
         public bool IsLoginUsed(string login)
         {
-            return _context.Users.AsNoTracking().Any(u => u.Login == login);
+            return _context.Users.Any(u => u.Login == login);
         }
 
         public bool IsLoginUsed(string login, int id)
         {
-            return _context.Users.AsNoTracking().Any(u => u.Login == login && u.UserId != id);
+            return _context.Users.Any(u => u.Login == login && u.UserId != id);
         }
 
         public User GetWithPositionLevel(int id)
         {
-            return _context.Users.AsNoTracking().Include(u => u.PositionLevel).Where(u => u.UserId == id).First();
+            return _context.Users.Include(u => u.PositionLevel).Where(u => u.UserId == id).First();
         }
     }
 }

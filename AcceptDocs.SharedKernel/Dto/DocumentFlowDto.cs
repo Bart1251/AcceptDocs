@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Reflection.Metadata;
 
 namespace AcceptDocs.SharedKernel.Dto
 {
@@ -7,10 +6,10 @@ namespace AcceptDocs.SharedKernel.Dto
     {
         [Description("Wszyscy")]
         All,
-        [Description("Pierwszy spełniający kryteria")]
-        FirstQualified,
-        [Description("Wszyscy spełniający kryteria")]
-        AllQualified,
+        [Description("Wszyscy sekwencyjnie")]
+        AllSequential,
+        [Description("Sekwencyjnie do spełniającego kryterium")]
+        SequentialToFirstQualified,
     }
 
     public class DocumentFlowDto
@@ -19,8 +18,7 @@ namespace AcceptDocs.SharedKernel.Dto
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public SelectionMethodDto SelectionMethod { get; set; }
-        public decimal Value { get; set; }
         public List<DocumentDto> Documents { get; set; } = new();
-        public List<UserDto> Users { get; set; } = new();
+        public List<DocumentFlowUserDto> Users { get; set; } = new();
     }
 }

@@ -27,10 +27,9 @@
                     @EnumHelper.GetDescription(flow.SelectionMethod)
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Value" Title="Kryterium wartości" />
             <RadzenDataGridColumn Title="Przypisane osoby">
                 <Template Context="flow">
-                    <a href="flow/users">Przypisanych: @flow.Users.Count</a>
+                    <a href=@("flow/users/" + flow.DocumentFlowId)>Przypisanych: @flow.Users.Count</a>
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
@@ -51,7 +50,7 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _flows = _documentFlowService.GetAll();
+        _flows = _documentFlowService.GetAllWithUsers();
     }
 
     private async Task Delete(int id)

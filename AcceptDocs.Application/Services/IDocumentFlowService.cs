@@ -10,5 +10,11 @@ namespace AcceptDocs.Application.Services
         void Delete(int id);
         DocumentFlowDto Get(int id);
         void Update(UpdateDocumentFlowDto dto);
+        List<DocumentFlowUserDto> GetAttachedUsers(int id);
+        void AttachUser(AttachUserDto dto);
+        void DetachUser(int documentFlowId, int userId);
+        List<UserDto> GetNotAttachedUsers(int id);
+        List<DocumentFlowDto> GetAllWithUsers();
+        void UpdateAttachedUserValue(AttachUserDto dto);
     }
 }

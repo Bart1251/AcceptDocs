@@ -1,0 +1,30 @@
+﻿@inherits ComponentBase
+@inject DialogService _dialogService
+
+<EditForm Model="@AttachmentModel" OnValidSubmit="@Save">
+    <RadzenStack Gap="5px">
+        <RadzenFormField Text="Kryterium wartości">
+            <RadzenNumeric Min="0" Max="@decimal.MaxValue" @bind-Value="@AttachmentModel.Value" />
+        </RadzenFormField>
+        <RadzenStack Gap="5px" Orientation="Orientation.Horizontal">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Zapisz" />
+            <RadzenButton Text="Anuluj" Click="@CloseDialog" ButtonStyle="ButtonStyle.Secondary" />
+        </RadzenStack>
+    </RadzenStack>
+</EditForm>
+
+@code {
+    [Parameter]
+    public AttachUserDto AttachmentModel { get; set; }
+
+    private void Save()
+    {
+        if (AttachmentModel.Value >= 0)
+            _dialogService.Close(AttachmentModel);
+    }
+
+    private void CloseDialog()
+    {
+        _dialogService.Close(null);
+    }
+}

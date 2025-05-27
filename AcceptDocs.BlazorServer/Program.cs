@@ -6,9 +6,6 @@ using AcceptDocs.Infrastructure;
 using AcceptDocs.Infrastructure.Repositories;
 using AcceptDocs.SharedKernel.Dto;
 using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 

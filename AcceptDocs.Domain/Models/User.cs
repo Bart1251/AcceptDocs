@@ -11,7 +11,7 @@
         public int PositionLevelId { get; set; }
         public PositionLevel PositionLevel { get; set; }
         public List<Document> Documents { get; set; } = new();
-        public List<DocumentFlow> DocumentFlows { get; set; } = new();
+        public List<DocumentFlowUser> DocuemntFlowUsers { get; set; } = new();
         public List<AcceptanceRequest> AcceptanceRequests { get; set; } = new();
     }
 }

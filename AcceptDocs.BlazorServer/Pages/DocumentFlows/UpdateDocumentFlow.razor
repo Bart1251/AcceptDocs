@@ -28,9 +28,6 @@
                             <RadzenFormField Text="Opis">
                                 <RadzenTextArea @bind-Value="@_flow.Description" Name="Description" />
                             </RadzenFormField>
-                            <RadzenFormField Text="Kryterium wartości">
-                                <RadzenNumeric @bind-Value="@_flow.Value" Name="Value" />
-                            </RadzenFormField>
                         </RadzenStack>
                     </RadzenColumn>
                 </RadzenRow>
@@ -62,7 +59,6 @@
                 Name = flow.Name,
                 Description = flow.Description,
                 SelectionMethod = flow.SelectionMethod,
-                Value = flow.Value,
             };
     }
 
