@@ -1,5 +1,5 @@
 ﻿@page "/flow/add"
-@inject NavigationManager _navigationManager
+@inject NavigationHelper _navigationHelper
 @inject IDocumentFlowService _documentFlowService
 
 <PageTitle>Dodaj flow</PageTitle>
@@ -7,7 +7,7 @@
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
         <h3>Dodawanie flow</h3>
-        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow"))" />
+        <NavigationButton/>
     </div>
 
     <RadzenCard>
@@ -46,9 +46,9 @@
     private AddDocumentFlowDto _flow = new();
     private List<EnumItem<SelectionMethodDto>> _selectionMethods = EnumHelper.GetEnumList<SelectionMethodDto>();
 
-    private void SubmitFlow()
+    private async Task SubmitFlow()
     {
         _documentFlowService.Create(_flow);
-        _navigationManager.NavigateTo("flow");
+        await _navigationHelper.GoBackAsync();
     }
 }

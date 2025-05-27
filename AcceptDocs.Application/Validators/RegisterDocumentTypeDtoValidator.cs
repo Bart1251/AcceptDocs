@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace AcceptDocs.Application.Validators
 {
-    public class RegisterPositionLevelDtoValidator : AbstractValidator<PositionLevelDto>
+    public class RegisterDocumentTypeDtoValidator : AbstractValidator<DocumentTypeDto>
     {
-        public RegisterPositionLevelDtoValidator()
+        public RegisterDocumentTypeDtoValidator()
         {
-            RuleFor(pl => pl.Name)
+            RuleFor(dt => dt.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Nazwa jest wymagana")
                 .MinimumLength(2).WithMessage("Wymagana długość nazwy to 2-30 znaków")

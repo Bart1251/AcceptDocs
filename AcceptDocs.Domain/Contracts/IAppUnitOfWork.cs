@@ -5,6 +5,7 @@
         public IUserRepository UserRepository { get; }
         public IPositionLevelRepository PositionLevelRepository { get; }
         public IDocumentFlowRepository DocumentFlowRepository { get; }
+        public IDocumentTypeRepository DocumentTypeRepository { get; }
         //repositories
 
         void Commit();

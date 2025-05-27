@@ -1,6 +1,7 @@
 using AcceptDocs.Application.Mappings;
 using AcceptDocs.Application.Services;
 using AcceptDocs.Application.Validators;
+using AcceptDocs.BlazorServer.Helpers;
 using AcceptDocs.Domain.Contracts;
 using AcceptDocs.Infrastructure;
 using AcceptDocs.Infrastructure.Repositories;
@@ -28,18 +29,22 @@ namespace AcceptDocs.BlazorServer
 
             builder.Services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
             builder.Services.AddScoped<DataSeeder>();
+            builder.Services.AddScoped<NavigationHelper>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPositionLevelService, PositionLevelService>();
             builder.Services.AddScoped<IPositionLevelRepository, PositionLevelRepository>();
             builder.Services.AddScoped<IDocumentFlowService, DocumentFlowService>();
             builder.Services.AddScoped<IDocumentFlowRepository, DocumentFlowRepository>();
+            builder.Services.AddScoped<IDocumentTypeService, DocumentTypeService>();
+            builder.Services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
 
             builder.Services.AddScoped<IValidator<AddUserDto>, RegisterAddUserDtoValidator>();
             builder.Services.AddScoped<IValidator<UpdateUserDto>, RegisterUpdateUserDtoValidator>();
             builder.Services.AddScoped<IValidator<AddDocumentFlowDto>, RegisterAddDocumentFlowDtoValidator>();
             builder.Services.AddScoped<IValidator<UpdateDocumentFlowDto>, RegisterUpdateDocumentFlowDtoValidator>();
             builder.Services.AddScoped<IValidator<PositionLevelDto>, RegisterPositionLevelDtoValidator>();
+            builder.Services.AddScoped<IValidator<DocumentTypeDto>, RegisterDocumentTypeDtoValidator>();
 
             builder.Services.AddRadzenComponents();
 

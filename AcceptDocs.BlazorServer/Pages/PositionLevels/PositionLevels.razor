@@ -1,6 +1,5 @@
 ﻿@page "/positionLevel"
 @inject IPositionLevelService _positionLevelService
-@inject NavigationManager _navigationManager
 @inject DialogService _dialogService
 
 <PageTitle>Poziomy stanowisk</PageTitle>
@@ -8,7 +7,7 @@
 <div class="d-flex flex-column gap-3">
     <div class="d-flex gap-3">
         <h3>Poziomy stanowisk</h3>
-        <RadzenButton Text="Dodaj poziom stanowiska" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("positionLevel/add"))" />
+        <NavigationButton Text="Dodaj poziom stanowiska" Path="positionLevel/add" />
     </div>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_positionLevels" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
@@ -18,7 +17,7 @@
             <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
                 <Template Context="positionLevel">
                     <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
-                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("positionLevel/update/" + positionLevel.PositionLevelId))" />
+                        <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("positionLevel/update/" + positionLevel.PositionLevelId)" />
                         <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(positionLevel.PositionLevelId))" />
                     </RadzenStack>
                 </Template>

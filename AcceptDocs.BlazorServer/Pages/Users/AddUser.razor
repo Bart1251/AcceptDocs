@@ -8,7 +8,7 @@
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
         <h3>Dodawanie użytkownika</h3>
-        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("user"))"/>
+        <NavigationButton Path="user" />
     </div>
 
     <RadzenCard>
@@ -39,7 +39,7 @@
                             <RadzenFormField Text="Poziom stanowiska" Style="flex: 1 1 auto">
                                 <RadzenDropDown @bind-Value="@_user.PositionLevelId" Placeholder="Wybierz poziom stanowiska" Data="@_positionLevels" TextProperty="Name" ValueProperty="PositionLevelId" Name="PositionLevelId" />
                             </RadzenFormField>
-                            <RadzenButton Icon="settings" ButtonStyle="ButtonStyle.Primary" Style="margin-top: 0.5rem" Click="@(() => _navigationManager.NavigateTo("positionLevel"))" />
+                            <NavigationButton Icon="settings" Style="margin-top: 0.5rem" Path="positionLevel" />
                         </RadzenStack>
                         <RadzenFormField Text="Stanowisko">
                             <RadzenTextBox @bind-Value="@_user.Position" Name="Position" />

@@ -1,26 +1,26 @@
-﻿@page "/positionLevel/add"
-@inject IPositionLevelService _positionLevelService
+﻿@page "/documentType/update/{id:int}"
+@inject IDocumentTypeService _documentTypeService
 @inject NavigationHelper _navigationHelper
 
-<PageTitle>Dodaj poziom stanowiska</PageTitle>
+<PageTitle>Edytuj typ dokumentu</PageTitle>
 
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
-        <h3>Dodawanie poziomu stanowiska</h3>
+        <h3>Edycja typu dokumentu</h3>
         <NavigationButton />
     </div>
 
     <RadzenCard>
-        <EditForm Model="@_positionLevel" OnValidSubmit="@SubmitPositionLevel">
+        <EditForm Model="@_documentType" OnValidSubmit="@SubmitPositionLevel">
             <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
             <ValidationSummary />
 
             <RadzenStack Gap="1rem">
                 <RadzenRow Gap="1rem">
                     <RadzenColumn Size="12" SizeSM="6">
-                            <RadzenFormField Text="Nazwa">
-                                <RadzenTextBox @bind-Value="@_positionLevel.Name" Name="Name" />
-                            </RadzenFormField>
+                        <RadzenFormField Text="Nazwa">
+                            <RadzenTextBox @bind-Value="@_documentType.Name" Name="Name" />
+                        </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenStack Orientation="Orientation.Horizontal">
@@ -34,12 +34,21 @@
 
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
+
     private FluentValidationValidator? _fluentValidationValidator;
-    private PositionLevelDto _positionLevel = new();
+    private DocumentTypeDto _documentType = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _documentType = _documentTypeService.Get(Id);
+    }
 
     private async Task SubmitPositionLevel()
     {
-        _positionLevelService.Create(_positionLevel);
+        _documentTypeService.Update(_documentType);
         await _navigationHelper.GoBackAsync();
     }
 }

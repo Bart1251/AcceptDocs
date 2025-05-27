@@ -1,5 +1,4 @@
 ﻿@page "/flow"
-@inject NavigationManager _navigationManager
 @inject DialogService _dialogService
 @inject IDocumentFlowService _documentFlowService
 
@@ -8,7 +7,7 @@
 <div class="d-flex flex-column gap-3">
     <div class="d-flex gap-3">
         <h3>Flow dokumentów</h3>
-        <RadzenButton Text="Dodaj flow" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow/add"))" />
+        <NavigationButton Text="Dodaj flow" Path="flow/add"/>
     </div>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_flows" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
@@ -35,7 +34,7 @@
             <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
                 <Template Context="flow">
                     <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
-                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("flow/update/" + flow.DocumentFlowId))" />
+                        <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("flow/update/" + flow.DocumentFlowId)" />
                         <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(flow.DocumentFlowId))" />
                     </RadzenStack>
                 </Template>

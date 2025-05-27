@@ -1,0 +1,55 @@
+﻿@page "/documentType"
+@inject IDocumentTypeService _documentTypeService
+@inject DialogService _dialogService
+
+<PageTitle>Typy dokumentów</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Typy dokumentów</h3>
+        <NavigationButton Text="Dodaj typ dokumentu" Path="documentType/add" />
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_documentTypes" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="DocumentTypeId" Title="Id" Width="100px" />
+            <RadzenDataGridColumn Property="Name" Title="Nazwa" />
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="documentType">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("documentType/update/" + documentType.DocumentTypeId)" />
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(documentType.DocumentTypeId))" />
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<DocumentTypeDto> _documentTypes = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _documentTypes = _documentTypeService.GetAll();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć typ dokumentu?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+        );
+
+        if (confirmed == true) {
+            _documentTypeService.Delete(id);
+            OnInitialized();
+        }
+    }
+}

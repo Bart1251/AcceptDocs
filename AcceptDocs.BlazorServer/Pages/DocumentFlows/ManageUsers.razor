@@ -1,5 +1,4 @@
 ﻿@page "/flow/users/{id:int}"
-@inject NavigationManager _navigationManager
 @inject DialogService _dialogService
 @inject IDocumentFlowService _documentFlowService
 
@@ -8,7 +7,7 @@
 <div class="d-flex flex-column gap-3">
     <div class="d-flex gap-3">
         <h3>Zarządzaj przypisanymi do flow @_flowName</h3>
-        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow"))" />
+        <NavigationButton />
     </div>
     <RadzenRow Gap="1rem">
         <RadzenColumn Size="12" SizeSM="6">
@@ -63,6 +62,7 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _attachmentModel = new();
         _flowName = _documentFlowService.Get(Id).Name;
         _attachedUsers = _documentFlowService.GetAttachedUsers(Id);
         _users = _documentFlowService.GetNotAttachedUsers(Id);

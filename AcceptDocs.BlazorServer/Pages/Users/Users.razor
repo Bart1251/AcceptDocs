@@ -1,6 +1,5 @@
 ﻿@page "/user"
 @inject IUserService _userService
-@inject NavigationManager _navigationManager
 @inject DialogService _dialogService
 
 <PageTitle>Użytkownicy</PageTitle>
@@ -8,7 +7,7 @@
 <div class="d-flex flex-column gap-3">
     <div class="d-flex gap-3">
         <h3>Użytkownicy</h3>
-        <RadzenButton Text="Dodaj użytkownika" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("user/add"))" />
+        <NavigationButton Text="Dodaj użytkownika" Path="user/add" />
     </div>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
@@ -26,7 +25,7 @@
             <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
                 <Template Context="user">
                     <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
-                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("user/update/" + user.UserId))"/>
+                        <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("user/update/" + user.UserId)" />
                         <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(user.UserId))"/>
                     </RadzenStack>
                 </Template>

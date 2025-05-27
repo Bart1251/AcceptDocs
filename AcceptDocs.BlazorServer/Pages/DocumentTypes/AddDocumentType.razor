@@ -1,26 +1,26 @@
-﻿@page "/positionLevel/add"
-@inject IPositionLevelService _positionLevelService
+﻿@page "/documentType/add"
+@inject IDocumentTypeService _documentTypeService
 @inject NavigationHelper _navigationHelper
 
-<PageTitle>Dodaj poziom stanowiska</PageTitle>
+<PageTitle>Dodaj typ dokumentu</PageTitle>
 
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
-        <h3>Dodawanie poziomu stanowiska</h3>
+        <h3>Dodawanie typu dokumentu</h3>
         <NavigationButton />
     </div>
 
     <RadzenCard>
-        <EditForm Model="@_positionLevel" OnValidSubmit="@SubmitPositionLevel">
+        <EditForm Model="@_documentType" OnValidSubmit="@SubmitDocumentType">
             <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
             <ValidationSummary />
 
             <RadzenStack Gap="1rem">
                 <RadzenRow Gap="1rem">
                     <RadzenColumn Size="12" SizeSM="6">
-                            <RadzenFormField Text="Nazwa">
-                                <RadzenTextBox @bind-Value="@_positionLevel.Name" Name="Name" />
-                            </RadzenFormField>
+                        <RadzenFormField Text="Nazwa">
+                            <RadzenTextBox @bind-Value="@_documentType.Name" Name="Name" />
+                        </RadzenFormField>
                     </RadzenColumn>
                 </RadzenRow>
                 <RadzenStack Orientation="Orientation.Horizontal">
@@ -35,11 +35,11 @@
 
 @code {
     private FluentValidationValidator? _fluentValidationValidator;
-    private PositionLevelDto _positionLevel = new();
+    private DocumentTypeDto _documentType = new();
 
-    private async Task SubmitPositionLevel()
+    private async Task SubmitDocumentType()
     {
-        _positionLevelService.Create(_positionLevel);
+        _documentTypeService.Create(_documentType);
         await _navigationHelper.GoBackAsync();
     }
 }

@@ -30,5 +30,10 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+    <script>
+        window.goBack = () => {
+            history.back();
+        };
+    </script>
 </body>
 </html>

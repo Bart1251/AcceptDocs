@@ -1,13 +1,13 @@
 ﻿@page "/positionLevel/update/{id:int}"
 @inject IPositionLevelService _positionLevelService
-@inject NavigationManager _navigationManager
+@inject NavigationHelper _navigationHelper
 
 <PageTitle>Edytuj poziom stanowiska</PageTitle>
 
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
         <h3>Edycja poziomu stanowiska</h3>
-        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("positionLevel"))" />
+        <NavigationButton />
     </div>
 
     <RadzenCard>
@@ -46,9 +46,9 @@
         _positionLevel = _positionLevelService.Get(Id);
     }
 
-    private void SubmitPositionLevel()
+    private async Task SubmitPositionLevel()
     {
         _positionLevelService.Update(_positionLevel);
-        _navigationManager.NavigateTo("positionLevel");
+        await _navigationHelper.GoBackAsync();
     }
 }

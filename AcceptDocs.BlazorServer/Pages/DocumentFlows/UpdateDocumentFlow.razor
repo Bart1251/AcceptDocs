@@ -1,13 +1,13 @@
 ﻿@page "/flow/update/{id:int}"
 @inject IDocumentFlowService _documentFlowService
-@inject NavigationManager _navigationManager
+@inject NavigationHelper _navigationHelper
 
 <PageTitle>Edytuj flow dokumentów</PageTitle>
 
 <div class="d-flex flex-column gap-3 mx-3">
     <div class="d-flex gap-3">
         <h3>Edycja flow dokumentów</h3>
-        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("flow"))" />
+        <NavigationButton />
     </div>
 
     <RadzenCard>
@@ -62,9 +62,9 @@
             };
     }
 
-    private void SubmitFlow()
+    private async Task SubmitFlow()
     {
         _documentFlowService.Update(_flow);
-        _navigationManager.NavigateTo("flow");
+        await _navigationHelper.GoBackAsync();
     }
 }
