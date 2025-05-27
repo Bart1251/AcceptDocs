@@ -35,9 +35,12 @@
                         <RadzenFormField Text="Hasło">
                             <RadzenPassword @bind-Value="@_user.Password" Name="Password" />
                         </RadzenFormField>
-                        <RadzenFormField Text="Poziom stanowiska">
-                            <RadzenDropDown @bind-Value="@_user.PositionLevelId" Placeholder="Wybierz poziom stanowiska" Data="@_positionLevels" TextProperty="Name" ValueProperty="PositionLevelId" Name="PositionLevelId" />
-                        </RadzenFormField>
+                        <RadzenStack Orientation="Orientation.Horizontal">
+                            <RadzenFormField Text="Poziom stanowiska" Style="flex: 1 1 auto">
+                                <RadzenDropDown @bind-Value="@_user.PositionLevelId" Placeholder="Wybierz poziom stanowiska" Data="@_positionLevels" TextProperty="Name" ValueProperty="PositionLevelId" Name="PositionLevelId" />
+                            </RadzenFormField>
+                            <RadzenButton Icon="settings" ButtonStyle="ButtonStyle.Primary" Style="margin-top: 0.5rem" Click="@(() => _navigationManager.NavigateTo("positionLevel"))" />
+                        </RadzenStack>
                         <RadzenFormField Text="Stanowisko">
                             <RadzenTextBox @bind-Value="@_user.Position" Name="Position" />
                         </RadzenFormField>

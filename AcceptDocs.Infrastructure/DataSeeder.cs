@@ -42,7 +42,7 @@ namespace AcceptDocs.Infrastructure
                         },
                         new PositionLevel() {
                             PositionLevelId = 4,
-                            Name = "Strszy specjalista",
+                            Name = "Starszy specjalista",
                         },
                         new PositionLevel() {
                             PositionLevelId = 5,
@@ -69,6 +69,18 @@ namespace AcceptDocs.Infrastructure
                             Password = "123",
                             Position = "Lorem ipsum dolor sit amet",
                             PositionLevelId = 7,
+                        }
+                    });
+                }
+
+                if (!_context.DocumentFlows.Any()) {
+                    _context.AddRange(new List<DocumentFlow>()
+                    {
+                        new DocumentFlow() {
+                            DocumentFlowId = 1,
+                            Name = "Test",
+                            Description = "Test",
+                            SelectionMethod = SelectionMethod.All,
                         }
                     });
                 }

@@ -1,0 +1,45 @@
+﻿@page "/positionLevel/add"
+@inject IPositionLevelService _positionLevelService
+@inject NavigationManager _navigationManager
+
+<PageTitle>Dodaj poziom stanowiska</PageTitle>
+
+<div class="d-flex flex-column gap-3 mx-3">
+    <div class="d-flex gap-3">
+        <h3>Dodawanie poziomu stanowiska</h3>
+        <RadzenButton Text="Wróć" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("positionLevel"))" />
+    </div>
+
+    <RadzenCard>
+        <EditForm Model="@_positionLevel" OnValidSubmit="@SubmitPositionLevel">
+            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <ValidationSummary />
+
+            <RadzenStack Gap="1rem">
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                            <RadzenFormField Text="Nazwa">
+                                <RadzenTextBox @bind-Value="@_positionLevel.Name" Name="Name" />
+                            </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenButton Text="Zatwierdź" ButtonType="ButtonType.Submit" />
+                </RadzenStack>
+            </RadzenStack>
+        </EditForm>
+    </RadzenCard>
+</div>
+
+
+
+@code {
+    private FluentValidationValidator? _fluentValidationValidator;
+    private PositionLevelDto _positionLevel = new();
+
+    private void SubmitPositionLevel()
+    {
+        _positionLevelService.Create(_positionLevel);
+        _navigationManager.NavigateTo("positionLevel");
+    }
+}

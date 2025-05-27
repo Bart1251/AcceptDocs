@@ -1,0 +1,56 @@
+﻿@page "/positionLevel"
+@inject IPositionLevelService _positionLevelService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+
+<PageTitle>Poziomy stanowisk</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Poziomy stanowisk</h3>
+        <RadzenButton Text="Dodaj poziom stanowiska" ButtonType="ButtonType.Button" Click="@(() => _navigationManager.NavigateTo("positionLevel/add"))" />
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_positionLevels" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="PositionLevelId" Title="Id" Width="100px" />
+            <RadzenDataGridColumn Property="Name" Title="Nazwa" />
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="positionLevel">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => _navigationManager.NavigateTo("positionLevel/update/" + positionLevel.PositionLevelId))" />
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(positionLevel.PositionLevelId))" />
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<PositionLevelDto> _positionLevels = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _positionLevels = _positionLevelService.GetAll();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć poziom stanowiska?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+        );
+
+        if (confirmed == true) {
+            _positionLevelService.Delete(id);
+            OnInitialized();
+        }
+    }
+}

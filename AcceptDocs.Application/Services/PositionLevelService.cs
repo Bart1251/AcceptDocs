@@ -1,4 +1,5 @@
 ﻿using AcceptDocs.Domain.Contracts;
+using AcceptDocs.Domain.Models;
 using AcceptDocs.SharedKernel.Dto;
 using AutoMapper;
 
@@ -15,11 +16,38 @@ namespace AcceptDocs.Application.Services
             _mapper = mapper;
         }
 
+        public int Create(PositionLevelDto dto)
+        {
+            var positionLevel = _mapper.Map<PositionLevel>(dto);
+            int id = _appUnitOfWork.PositionLevelRepository.Insert(positionLevel);
+            _appUnitOfWork.Commit();
+            return id;
+        }
+
+        public void Delete(int id)
+        {
+            var positionLevel = _appUnitOfWork.PositionLevelRepository.Get(id);
+            _appUnitOfWork.PositionLevelRepository.Delete(positionLevel);
+            _appUnitOfWork.Commit();
+        }
+
+        public PositionLevelDto Get(int id)
+        {
+            var positionLevel = _appUnitOfWork.PositionLevelRepository.Get(id);
+            return _mapper.Map<PositionLevelDto>(positionLevel);
+        }
 
         public List<PositionLevelDto> GetAll()
         {
             var positionLevels = _appUnitOfWork.PositionLevelRepository.GetAll();
             return _mapper.Map<List<PositionLevelDto>>(positionLevels);
+        }
+
+        public void Update(PositionLevelDto dto)
+        {
+            var positionLevel = _appUnitOfWork.PositionLevelRepository.Get(dto.PositionLevelId);
+            positionLevel.Name = dto.Name;
+            _appUnitOfWork.Commit();
         }
     }
 }

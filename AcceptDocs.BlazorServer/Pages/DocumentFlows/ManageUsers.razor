@@ -13,7 +13,7 @@
     <RadzenRow Gap="1rem">
         <RadzenColumn Size="12" SizeSM="6">
             <h4>Dodani do flow</h4>
-            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_attachedUsers" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_attachedUsers" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
                 <Columns>
                     <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
                     <RadzenDataGridColumn Property="FirstName" Title="Imię" />
@@ -33,7 +33,7 @@
         </RadzenColumn>
         <RadzenColumn Size="12" SizeSM="6">
             <h4>Dostępni by dołączyć</h4>
-            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+            <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
                 <Columns>
                     <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
                     <RadzenDataGridColumn Property="FirstName" Title="Imię" />
