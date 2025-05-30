@@ -65,8 +65,8 @@ namespace AcceptDocs.Infrastructure
                             UserId = 1,
                             FirstName = "Jan",
                             LastName = "Kowalski",
-                            Login = "123",
-                            Password = "123",
+                            Login = "123456789",
+                            Password = BCrypt.Net.BCrypt.HashPassword("123456789"),
                             Position = "Lorem ipsum dolor sit amet",
                             PositionLevelId = 7,
                         }

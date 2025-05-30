@@ -1,24 +1,48 @@
-﻿@page "/"
+﻿@page "/login"
+@layout MainLayout
+
+@inject AuthenticationStateProvider _authStateProvider
+@inject NavigationManager _navigationManager
+@inject IAuthService _authService;
 
 
 <PageTitle>Login</PageTitle>
 
-<div class="d-flex align-items-center justify-content-center min-vh-100 w-100 bg-light-subtle">
-    <EditForm Model="@_loginData">
-        <div class="rounded bg-dark shadow-sm p-3 d-flex flex-column gap-3">
-            <h1 class="fs-3">Zaloguj się do systemu</h1>
-            <div class="d-flex flex-column">
-                <label class="text-primary fs-5">Login</label>
-                <InputText @bind-Value="_loginData.Login" class="form-control fs-5" />
-            </div>
-            <div class="d-flex flex-column">
-                <label class="text-primary fs-5">Hasło</label>
-                <InputText @bind-Value="_loginData.Password" class="form-control fs-5" type="password" />
-            </div>
-        </div>
-    </EditForm>
-</div>
+<RadzenStack class="min-vh-100" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+    <RadzenCard>
+        <EditForm Model="@_loginData" OnValidSubmit="@LoginUser">
+            <RadzenStack AlignItems="AlignItems.Stretch">
+                <h3>Zaloguj się do systemu</h3>
+                <RadzenFormField Text="Login">
+                    <RadzenTextBox @bind-Value="@_loginData.Login"/>
+                </RadzenFormField>
+                <RadzenFormField Text="Password">
+                    <RadzenPassword @bind-Value="@_loginData.Password" />
+                </RadzenFormField>
+                <RadzenButton Text="Zaloguj" ButtonType="ButtonType.Submit"/>
+            </RadzenStack>
+        </EditForm>
+    </RadzenCard>
+</RadzenStack>
 
 @code {
     private UserLoginDto _loginData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await _authStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true) {
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task LoginUser()
+    {
+        if(await _authService.Login(_loginData)) {
+            _navigationManager.NavigateTo("/");
+        }
+        else {
+            //wyświetl błąd
+        }
+    } 
 }

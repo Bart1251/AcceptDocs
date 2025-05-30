@@ -1,0 +1,15 @@
+﻿@page "/logout"
+@layout MainLayout
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject AuthenticationStateProvider _authStateProvider
+
+<h3>Wylogowywanie...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await _authService.Logout();
+        _navigationManager.NavigateTo("/login");
+    }
+}

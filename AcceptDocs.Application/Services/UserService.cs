@@ -1,7 +1,16 @@
 ﻿using AcceptDocs.Domain.Contracts;
+using AcceptDocs.Domain.Exceptions;
 using AcceptDocs.Domain.Models;
 using AcceptDocs.SharedKernel.Dto;
 using AutoMapper;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
 
 namespace AcceptDocs.Application.Services
 {
@@ -9,16 +18,19 @@ namespace AcceptDocs.Application.Services
     {
         private readonly IAppUnitOfWork _appUnitOfWork;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
 
-        public UserService(IAppUnitOfWork appUnitOfWork, IMapper mapper)
+        public UserService(IAppUnitOfWork appUnitOfWork, IMapper mapper, IConfiguration config)
         {
             _appUnitOfWork = appUnitOfWork;
             _mapper = mapper;
+            _config = config;
         }
 
         public int Create(AddUserDto dto)
         {
             var user = _mapper.Map<User>(dto);
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             int id = _appUnitOfWork.UserRepository.Insert(user);
             _appUnitOfWork.Commit();
             return id;
@@ -53,6 +65,30 @@ namespace AcceptDocs.Application.Services
             user.PositionLevelId = dto.PositionLevelId;
             user.Position = dto.Position;
             _appUnitOfWork.Commit();
+        }
+
+        public string Login(UserLoginDto dto)
+        {
+            var user = _appUnitOfWork.UserRepository.Find(u => u.Login == dto.Login).FirstOrDefault();
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+                throw new UnauthorizedException("Failed to authenticate. Wrong login or password");
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, dto.Login)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

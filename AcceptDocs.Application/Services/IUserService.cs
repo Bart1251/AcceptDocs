@@ -9,5 +9,6 @@ namespace AcceptDocs.Application.Services
         void Delete(int id);
         UserDto GetWithPositionLevel(int id);
         void Update(UpdateUserDto dto);
+        string Login(UserLoginDto dto);
     }
 }
