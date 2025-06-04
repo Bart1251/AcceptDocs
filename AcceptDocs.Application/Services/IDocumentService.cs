@@ -8,5 +8,7 @@ namespace AcceptDocs.Application.Services
         void Delete(int id);
         DocumentDto Get(int id);
         List<DocumentDto> GetAllForUserWithTypeAndFlow(int id);
+        DocumentDto GetWithTypeFlowAndUser(int id);
+        void Update(AddDocumentDto dto);
     }
 }

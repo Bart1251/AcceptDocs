@@ -16,5 +16,13 @@ namespace AcceptDocs.Infrastructure.Repositories
                 .Include(d => d.DocumentType)
                 .Include(d => d.DocumentFlow).ToList();
         }
+
+        public Document GetWithTypeFlowAndUser(int id)
+        {
+            return _context.Documents.Where(d => d.DocumentId == id)
+                .Include(d => d.DocumentType)
+                .Include(d => d.User)
+                .Include(d => d.DocumentFlow).First();
+        }
     }
 }

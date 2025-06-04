@@ -1,0 +1,151 @@
+﻿@page "/document/details/{id:int}"
+@attribute [Authorize]
+
+@inject IDocumentTypeService _documentTypeService
+@inject IDocumentFlowService _documentFlowService
+@inject IDocumentService _documentService
+@inject IJSRuntime _js
+@inject NavigationHelper _navigationHelper
+@inject CustomAuthStateProvider _authStateProvider
+
+<PageTitle>Dokument</PageTitle>
+
+<div class="d-flex flex-column gap-3 mx-3">
+    <div class="d-flex gap-3">
+        <h3>Szczególy dokumentu</h3>
+        <NavigationButton />
+    </div>
+
+    <RadzenCard>
+        <EditForm Model="@_document" OnValidSubmit="@SubmitDocument">
+            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <ValidationSummary />
+
+            <RadzenRow Gap="1rem">
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Nazwa">
+                            <RadzenTextBox @bind-Value="@_document.Name" Name="Name" ReadOnly="@(!Editable)" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Rodzaj dokumentu">
+                            <RadzenDropDown @bind-Value="@_document.DocumentTypeId" Placeholder="Wybierz rodzaj dokumentu" Data="@_documentTypes" TextProperty="Name" ValueProperty="DocumentTypeId" Name="DocumentTypeId" ReadOnly="@(!Editable)" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Opis">
+                            <RadzenTextArea @bind-Value="@_document.Description" Name="Description" ReadOnly="@(!Editable)" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Wartość">
+                            <RadzenNumeric @bind-Value="@_document.Value" Name="Value" ReadOnly="@(!Editable)" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Flow dokumentu">
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" TextProperty="Name" ValueProperty="DocumentFlowId" Name="DocumentFlowId" ReadOnly="@(!Editable)" />
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Data utworzenia">
+                            <RadzenTextBox Value="@(CreatedAt.ToString())" ReadOnly="true" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Status">
+                            <RadzenTextBox Value="@(EnumHelper.GetDescription(_document.Status))" ReadOnly="true" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Utworzono przez">
+                            <RadzenTextBox Value="@UserName" ReadOnly="true" />
+                        </RadzenFormField>
+                        @if(Editable) {
+                            <InputFile style="display: none;" @ref="_inputFileRef" OnChange="@InputFilechange" />
+                            <RadzenButton Text="Zmień dokument" Click="@InputFileOpen" Style="margin-top: 8px" />
+                            @if (_document.File is not null) {
+                                <RadzenCard>
+                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                        <span style="flex: 1 1 auto;">@_document.File.Name</span>
+                                        <span>@(Math.Round(_document.File.Size / 1024.0, 1)) KB</span>
+                                        <RadzenButton Icon="close" Click="@RemoveFile" />
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+                @if (Editable) {
+                    <RadzenButton Text="Modyfikuj" ButtonType="ButtonType.Submit" />
+                }
+            </RadzenRow>
+        </EditForm>
+    </RadzenCard>
+    <RadzenCard>
+        <RadzenRow>
+            <RadzenColumn Size="12">
+                <RadzenStack>
+                    @if (new[] { ".doc", ".docx", ".pdf" }.Contains(Path.GetExtension(_document.FileName.ToLowerInvariant()))) {
+                        <embed src="@("https://localhost:7280/" + (new [] { ".doc", ".docx" }.Contains(Path.GetExtension(_document.FileName)) ? ("previews/" + Path.GetFileNameWithoutExtension(_document.FileName) + ".pdf") : ("documents/" + _document.FileName)))" style="height:800px;" />
+                    } else {
+                        <img src="@("https://localhost:7280/documents/" + _document.FileName)" />
+                    }
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private FluentValidationValidator? _fluentValidationValidator;
+    private AddDocumentDto _document = new();
+    private List<DocumentTypeDto> _documentTypes = new();
+    private List<DocumentFlowDto> _documentFlows = new();
+    private InputFile _inputFileRef;
+    private DateTime CreatedAt;
+    private string UserName = String.Empty;
+    private bool Editable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _documentTypes = await _documentTypeService.GetAll();
+        _documentFlows = await _documentFlowService.GetAll();
+        var doc = await _documentService.GetWithTypeFlowAndUser(Id);
+        _document = new AddDocumentDto() {
+            DocumentId = doc.DocumentId,
+            Name = doc.Name,
+            Description = doc.Description,
+            DocumentTypeId = doc.DocumentType.DocumentTypeId,
+            FileName = doc.FileName,
+            Value = doc.Value,
+            Status = doc.Status,
+            UserId = doc.User.UserId,
+            DocumentFlowId = doc.DocumentFlow is null ? null : doc.DocumentFlow.DocumentFlowId
+        };
+        CreatedAt = doc.CreatedAt;
+        UserName = doc.User.FirstName + " " + doc.User.LastName;
+        Editable = _authStateProvider.CurrentUserId == doc.User.UserId && (doc.Status == DocumentStatusDto.Created || doc.Status == DocumentStatusDto.Rejected);
+    }
+
+    private async Task InputFileOpen()
+    {
+        await _js.InvokeVoidAsync("triggerClick", _inputFileRef.Element);
+    }
+
+    private void InputFilechange(InputFileChangeEventArgs args)
+    {
+        _document.File = args.File;
+    }
+
+    private void RemoveFile()
+    {
+        _document.File = null;
+    }
+
+    private async Task SubmitDocument()
+    {
+        if (_document.DocumentFlowId is not null) {
+            _document.Status = DocumentStatusDto.WaitingForApproval;
+        } else {
+            _document.Status = DocumentStatusDto.Created;
+        }
+        await _documentService.Update(_document);
+        await _navigationHelper.GoBackAsync();
+    }
+}

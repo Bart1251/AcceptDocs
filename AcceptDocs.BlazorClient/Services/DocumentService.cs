@@ -10,6 +10,8 @@ namespace AcceptDocs.BlazorClient.Services
         Task<bool> SubmitDocument(AddDocumentDto dto);
         Task<List<DocumentDto>> GetAllForUserWithTypeAndFlow(int userId);
         Task<bool> Delete(int id);
+        Task<bool> Update(AddDocumentDto dto);
+        Task<DocumentDto> GetWithTypeFlowAndUser(int id);
     }
 
     public class DocumentService : IDocumentService
@@ -51,6 +53,35 @@ namespace AcceptDocs.BlazorClient.Services
         public async Task<bool> Delete(int id)
         {
             var response = await _httpClient.DeleteAsync("api/Document/" + id);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<DocumentDto> GetWithTypeFlowAndUser(int id)
+        {
+            var response = await _httpClient.GetAsync("api/Document/" + id);
+            if (response.IsSuccessStatusCode) {
+                var content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DocumentDto>(content);
+            }
+            return new DocumentDto();
+        }
+
+        public async Task<bool> Update(AddDocumentDto dto)
+        {
+            var content = new MultipartFormDataContent();
+
+            if(dto.File is not null) {
+                dto.FileName = dto.File.Name;
+                var fileContent = new StreamContent(dto.File.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024));
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(dto.File.ContentType);
+                content.Add(content: fileContent, name: "file", fileName: dto.File.Name);
+            }
+
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var jsonContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            content.Add(jsonContent, "document");
+
+            var response = await _httpClient.PutAsync("api/Document/" + dto.DocumentId, content);
             return response.IsSuccessStatusCode;
         }
     }
