@@ -1,0 +1,27 @@
+﻿@inject NavigationHelper _navigationHelper
+@inject NavigationManager _navigationManager
+
+<RadzenButton Text="@(String.IsNullOrEmpty(Icon) ? Text : "")" Icon="@Icon" Style="@Style" ButtonStyle="@ButtonStyle" Size="@Size" ButtonType="ButtonType.Button" Click="@Navigate" />
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = "Wróć";
+    [Parameter]
+    public string Path { get; set; } = "";
+    [Parameter]
+    public string Icon { get; set; } = "";
+    [Parameter]
+    public string Style { get; set; } = "";
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Medium;
+    [Parameter]
+    public ButtonStyle ButtonStyle { get; set; } = ButtonStyle.Primary;
+
+    private async Task Navigate()
+    {
+        if (String.IsNullOrEmpty(Path))
+            await _navigationHelper.GoBackAsync();
+        else
+            _navigationManager.NavigateTo(Path);
+    }
+}

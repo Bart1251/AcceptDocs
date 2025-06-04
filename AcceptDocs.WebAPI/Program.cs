@@ -10,6 +10,10 @@ using Microsoft.IdentityModel.Tokens;
 using AcceptDocs.Application.Services;
 using AcceptDocs.Infrastructure.Repositories;
 using AcceptDocs.WebAPI.Middleware;
+using FluentValidation;
+using AcceptDocs.SharedKernel.Dto;
+using AcceptDocs.Application.Validators;
+using System.Text.Json.Serialization;
 
 namespace AcceptDocs.WebAPI
 {
@@ -26,7 +30,9 @@ namespace AcceptDocs.WebAPI
                 builder.Logging.ClearProviders();
                 builder.Host.UseNLog();
 
-                builder.Services.AddControllers();
+                builder.Services.AddControllers().AddJsonOptions((x) => {
+                    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
                 builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen();
 
@@ -36,7 +42,7 @@ namespace AcceptDocs.WebAPI
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
                 builder.Services.AddFluentValidationAutoValidation();
-                //builder.Services.AddScoped<IValidator<!!DTO!!>, !!VALIDATOR!!>();
+                builder.Services.AddScoped<IValidator<AddDocumentDto>, RegisterAddDocumentDtoValidator>();
 
                 builder.Services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
                 builder.Services.AddScoped<DataSeeder>();
@@ -48,6 +54,8 @@ namespace AcceptDocs.WebAPI
                 builder.Services.AddScoped<IDocumentFlowRepository, DocumentFlowRepository>();
                 builder.Services.AddScoped<IDocumentTypeService, DocumentTypeService>();
                 builder.Services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+                builder.Services.AddScoped<IDocumentService, DocumentService>();
+                builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
                 builder.Services.AddScoped<ExceptionMiddleware>();
 
@@ -82,7 +90,7 @@ namespace AcceptDocs.WebAPI
                     app.UseSwaggerUI();
                 }
 
-                //middleware
+                app.UseMiddleware<ExceptionMiddleware>();
                 app.UseStaticFiles();
                 app.UseHttpsRedirection();
                 app.UseAuthentication();

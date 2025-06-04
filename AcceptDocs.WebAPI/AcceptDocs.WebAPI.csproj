@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspose.Words" Version="25.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AcceptDocs.Application\AcceptDocs.Application.csproj" />
     <ProjectReference Include="..\AcceptDocs.Infrastructure\AcceptDocs.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\documents\" />
   </ItemGroup>
 
 </Project>

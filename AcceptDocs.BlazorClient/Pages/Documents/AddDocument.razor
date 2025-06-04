@@ -1,0 +1,105 @@
+﻿@page "/document/add"
+@attribute [Authorize]
+
+@inject IDocumentTypeService _documentTypeService
+@inject IDocumentFlowService _documentFlowService
+@inject IDocumentService _documentService
+@inject IJSRuntime _js
+@inject NavigationHelper _navigationHelper
+@inject CustomAuthStateProvider _authStateProvider
+
+<PageTitle>Dodaj dokument</PageTitle>
+
+<div class="d-flex flex-column gap-3 mx-3">
+    <div class="d-flex gap-3">
+        <h3>Dodawanie dokumentu</h3>
+        <NavigationButton />
+    </div>
+
+    <RadzenCard>
+        <EditForm Model="@_document" OnValidSubmit="@SubmitDocument">
+            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <ValidationSummary />
+
+            <RadzenRow Gap="1rem">
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <RadzenFormField Text="Nazwa">
+                            <RadzenTextBox @bind-Value="@_document.Name" Name="Name" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Rodzaj dokumentu">
+                            <RadzenDropDown @bind-Value="@_document.DocumentTypeId" Placeholder="Wybierz rodzaj dokumentu" Data="@_documentTypes" TextProperty="Name" ValueProperty="DocumentTypeId" Name="DocumentTypeId" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Opis">
+                            <RadzenTextArea @bind-Value="@_document.Description" Name="Description" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Wartość">
+                            <RadzenNumeric @bind-Value="@_document.Value" Name="Value" />
+                        </RadzenFormField>
+                        <RadzenFormField Text="Flow dokumentu">
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" TextProperty="Name" ValueProperty="DocumentFlowId" Name="DocumentFlowId" />
+                        </RadzenFormField>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeSM="6">
+                    <RadzenStack>
+                        <InputFile style="display: none;" @ref="_inputFileRef" OnChange="@InputFilechange"/>
+                        <RadzenButton Text="Wybierz dokument" Click="@InputFileOpen" Style="margin-top: 8px"/>
+                        @if(_document.File is not null) {
+                            <RadzenCard>
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                    <span style="flex: 1 1 auto;">@_document.File.Name</span>
+                                    <span>@(Math.Round(_document.File.Size / 1024.0, 1)) KB</span>
+                                    <RadzenButton Icon="close" Click="@RemoveFile" />
+                                </RadzenStack>
+                            </RadzenCard>
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenButton Text="Zatwierdź" ButtonType="ButtonType.Submit" />
+            </RadzenRow>
+        </EditForm>
+    </RadzenCard>
+</div>
+
+@code {
+    private FluentValidationValidator? _fluentValidationValidator;
+    private AddDocumentDto _document = new();
+    private List<DocumentTypeDto> _documentTypes = new();
+    private List<DocumentFlowDto> _documentFlows = new();
+    private InputFile _inputFileRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _documentTypes = await _documentTypeService.GetAll();
+        _documentFlows = await _documentFlowService.GetAll();
+    }
+
+    private async Task InputFileOpen()
+    {
+        await _js.InvokeVoidAsync("triggerClick", _inputFileRef.Element);
+    }
+
+    private void InputFilechange(InputFileChangeEventArgs args)
+    {
+        _document.File = args.File;
+    }
+
+    private void RemoveFile()
+    {
+        _document.File = null;
+    }
+
+    private async Task SubmitDocument()
+    {
+        if(_document.DocumentFlowId is not null) {
+            _document.Status = DocumentStatusDto.WaitingForApproval;
+        } else {
+            _document.Status = DocumentStatusDto.Created;
+        }
+        _document.UserId = _authStateProvider.CurrentUserId??-1;
+        await _documentService.SubmitDocument(_document);
+        await _navigationHelper.GoBackAsync();
+    }
+}

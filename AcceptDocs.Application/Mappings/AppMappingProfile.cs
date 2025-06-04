@@ -25,6 +25,8 @@ namespace AcceptDocs.Application.Mappings
                 .ForMember(m => m.LastName, c => c.MapFrom(s => s.User.LastName))
                 .ForMember(m => m.Position, c => c.MapFrom(s => s.User.Position));
             CreateMap<Document, DocumentDto>().ReverseMap();
+            CreateMap<AddDocumentDto, Document>()
+                .ForMember(m => m.CreatedAt, c => c.Ignore());
             CreateMap<AcceptanceRequest, AcceptanceRequestDto>().ReverseMap();
             CreateMap<AcceptanceRequestStatus, AcceptanceRequestStatusDto>().ReverseMap();
             CreateMap<DocumentStatus, DocumentStatusDto>().ReverseMap();

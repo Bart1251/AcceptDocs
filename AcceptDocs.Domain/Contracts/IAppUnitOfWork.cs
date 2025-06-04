@@ -6,6 +6,7 @@
         public IPositionLevelRepository PositionLevelRepository { get; }
         public IDocumentFlowRepository DocumentFlowRepository { get; }
         public IDocumentTypeRepository DocumentTypeRepository { get; }
+        public IDocumentRepository DocumentRepository { get; }
         //repositories
 
         void Commit();

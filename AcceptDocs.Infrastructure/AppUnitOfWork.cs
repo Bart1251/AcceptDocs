@@ -9,16 +9,18 @@ namespace AcceptDocs.Infrastructure
         public IPositionLevelRepository PositionLevelRepository { get; }
         public IDocumentFlowRepository DocumentFlowRepository { get; }
         public IDocumentTypeRepository DocumentTypeRepository { get; }
+        public IDocumentRepository DocumentRepository { get; }
 
         //repositories
 
-        public AppUnitOfWork(AppDbContext context, IUserRepository userRepository, IPositionLevelRepository positionLevelRepository, IDocumentFlowRepository documentFlowRepository, IDocumentTypeRepository documentTypeRepository)//repositories
+        public AppUnitOfWork(AppDbContext context, IUserRepository userRepository, IPositionLevelRepository positionLevelRepository, IDocumentFlowRepository documentFlowRepository, IDocumentTypeRepository documentTypeRepository, IDocumentRepository documentRepository)//repositories
         {
             _context = context;
             UserRepository = userRepository;
             PositionLevelRepository = positionLevelRepository;
             DocumentFlowRepository = documentFlowRepository;
             DocumentTypeRepository = documentTypeRepository;
+            DocumentRepository = documentRepository;
         }
 
         public void Commit()

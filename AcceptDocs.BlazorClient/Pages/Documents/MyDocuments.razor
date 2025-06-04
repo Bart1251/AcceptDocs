@@ -1,0 +1,81 @@
+﻿@page "/document"
+@attribute [Authorize]
+
+@inject IDocumentService _documentService
+@inject DialogService _dialogService
+@inject CustomAuthStateProvider _authStateProvider
+
+<PageTitle>Moje dokumenty</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Moje dokumenty</h3>
+        <NavigationButton Text="Stwórz nowy dokument" Path="document/add" />
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_documents" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="DocumentId" Title="Id" Width="100px" />
+            <RadzenDataGridColumn Property="Name" Title="Nazwa" />
+            <RadzenDataGridColumn Title="Rodzaj dokumentu">
+                <Template Context="document">
+                    @document.DocumentType?.Name
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Value" Title="Wartość" />
+            <RadzenDataGridColumn Title="Status">
+                <Template Context="document">
+                    <span style="@(document.Status == DocumentStatusDto.Approved ? "background-color: green;" : (document.Status == DocumentStatusDto.Rejected ? "backgound-color: red;": ""))">
+                        @(EnumHelper.GetDescription(document.Status))
+                    </span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Flow dokumentu">
+                <Template Context="document">
+                    @(document.DocumentFlow is not null ? document.DocumentFlow.Name : "Nie zdefiniowano")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="CreatedAt" Title="Data utworzenia" />
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="document">
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        @if(document.Status == DocumentStatusDto.Created || document.Status == DocumentStatusDto.Rejected) {
+                            <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
+                            <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(document.DocumentId))" />
+                        } else {
+                            <NavigationButton Icon="info" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
+                        }
+                    </RadzenStack>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<DocumentDto> _documents = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _documents = await _documentService.GetAllForUserWithTypeAndFlow(_authStateProvider.CurrentUserId??-1);
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć dokument?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+        );
+
+        if (confirmed == true) {
+            await _documentService.Delete(id);
+            await OnInitializedAsync();
+        }
+    }
+}

@@ -12,7 +12,7 @@ namespace AcceptDocs.SharedKernel.Dto
         [Description("Zaakceptowany")]
         Approved,
         [Description("Odrzucony")]
-        NotApproved,
+        Rejected,
     }
 
     public class DocumentDto
@@ -21,7 +21,7 @@ namespace AcceptDocs.SharedKernel.Dto
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public DocumentTypeDto DocumentType { get; set; }
-        public string FilePath { get; set; } = String.Empty;
+        public string FileName { get; set; } = String.Empty;
         public decimal Value { get; set; }
         public DateTime CreatedAt { get; set; }
         public DocumentStatusDto Status { get; set; }

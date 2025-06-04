@@ -75,7 +75,8 @@ namespace AcceptDocs.Application.Services
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, dto.Login)
+                new Claim(ClaimTypes.Name, dto.Login),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
