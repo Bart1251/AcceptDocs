@@ -16,6 +16,30 @@ a, .btn-link {
     border-color: #1861ac;
 }
 
+.good, .bad, .regular {
+    color: white;
+}
+
+td:has(.good) {
+    background-color: forestgreen;
+}
+
+td:has(.bad) {
+    background-color: darkred;
+}
+
+td:has(.regular) {
+    background-color: cornflowerblue;
+}
+
+.rz-form-field-content:has([readonly]):not(:has(.rz-dropdown)) {
+    background-color: #E6E6E6 !important;
+}
+
+.readonly .rz-form-field-content {
+    background-color: #E6E6E6 !important;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }

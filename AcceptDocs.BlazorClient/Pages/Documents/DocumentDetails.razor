@@ -1,58 +1,68 @@
 ﻿@page "/document/details/{id:int}"
+@page "/document/details/{id:int}/{requestId:int}"
 @attribute [Authorize]
 
 @inject IDocumentTypeService _documentTypeService
 @inject IDocumentFlowService _documentFlowService
 @inject IDocumentService _documentService
+@inject IAcceptanceRequestService _acceptanceRequestService
 @inject IJSRuntime _js
 @inject NavigationHelper _navigationHelper
 @inject CustomAuthStateProvider _authStateProvider
 
 <PageTitle>Dokument</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Szczególy dokumentu</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Szczególy dokumentu</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
+        <RadzenText TextStyle="TextStyle.H5">Informacje dotyczące dokumentu</RadzenText>
         <EditForm Model="@_document" OnValidSubmit="@SubmitDocument">
-            <FluentValidationValidator @ref="_fluentValidationValidator" DisableAssemblyScanning="true" />
+            <FluentValidationValidator @ref="_fluentValidationValidatorDocument" DisableAssemblyScanning="true" />
             <ValidationSummary />
 
             <RadzenRow Gap="1rem">
                 <RadzenColumn Size="12" SizeSM="6">
                     <RadzenStack>
                         <RadzenFormField Text="Nazwa">
-                            <RadzenTextBox @bind-Value="@_document.Name" Name="Name" ReadOnly="@(!Editable)" />
+                            <RadzenTextBox @bind-Value="@_document.Name" Name="Name" ReadOnly="@(!_editable)" />
                         </RadzenFormField>
-                        <RadzenFormField Text="Rodzaj dokumentu">
-                            <RadzenDropDown @bind-Value="@_document.DocumentTypeId" Placeholder="Wybierz rodzaj dokumentu" Data="@_documentTypes" TextProperty="Name" ValueProperty="DocumentTypeId" Name="DocumentTypeId" ReadOnly="@(!Editable)" />
+                        <RadzenFormField Text="Rodzaj dokumentu" class="@(!_editable ? "readonly" : "")">
+                            <RadzenDropDown @bind-Value="@_document.DocumentTypeId" Placeholder="Wybierz rodzaj dokumentu" Data="@_documentTypes" TextProperty="Name" ValueProperty="DocumentTypeId" Name="DocumentTypeId" ReadOnly="@(!_editable)" />
                         </RadzenFormField>
                         <RadzenFormField Text="Opis">
-                            <RadzenTextArea @bind-Value="@_document.Description" Name="Description" ReadOnly="@(!Editable)" />
+                            <RadzenTextArea @bind-Value="@_document.Description" Name="Description" ReadOnly="@(!_editable)"/>
                         </RadzenFormField>
                         <RadzenFormField Text="Wartość">
-                            <RadzenNumeric @bind-Value="@_document.Value" Name="Value" ReadOnly="@(!Editable)" />
+                            <ChildContent>
+                                <RadzenNumeric @bind-Value="@_document.Value" Name="Value" Format="N2" ReadOnly="@(!_editable)" />
+                            </ChildContent>
+                            <End>zł</End>
                         </RadzenFormField>
-                        <RadzenFormField Text="Flow dokumentu">
-                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" TextProperty="Name" ValueProperty="DocumentFlowId" Name="DocumentFlowId" ReadOnly="@(!Editable)" />
+                        <RadzenFormField Text="Flow dokumentu" class="@(!_editable ? "readonly" : "")">
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" ReadOnly="@(!_editable)" >
+                                <Template Context="documentFlow">
+                                    @(documentFlow.Name + " - " + EnumHelper.GetDescription(documentFlow.SelectionMethod))
+                                </Template>
+                            </RadzenDropDown>
                         </RadzenFormField>
                     </RadzenStack>
                 </RadzenColumn>
                 <RadzenColumn Size="12" SizeSM="6">
                     <RadzenStack>
                         <RadzenFormField Text="Data utworzenia">
-                            <RadzenTextBox Value="@(CreatedAt.ToString())" ReadOnly="true" />
+                            <RadzenTextBox Value="@(_createdAt.ToString())" ReadOnly="true" />
                         </RadzenFormField>
                         <RadzenFormField Text="Status">
                             <RadzenTextBox Value="@(EnumHelper.GetDescription(_document.Status))" ReadOnly="true" />
                         </RadzenFormField>
                         <RadzenFormField Text="Utworzono przez">
-                            <RadzenTextBox Value="@UserName" ReadOnly="true" />
+                            <RadzenTextBox Value="@_userName" ReadOnly="true" />
                         </RadzenFormField>
-                        @if(Editable) {
+                        @if(_editable) {
                             <InputFile style="display: none;" @ref="_inputFileRef" OnChange="@InputFilechange" />
                             <RadzenButton Text="Zmień dokument" Click="@InputFileOpen" Style="margin-top: 8px" />
                             @if (_document.File is not null) {
@@ -67,47 +77,110 @@
                         }
                     </RadzenStack>
                 </RadzenColumn>
-                @if (Editable) {
+                @if (_editable) {
                     <RadzenButton Text="Modyfikuj" ButtonType="ButtonType.Submit" />
                 }
             </RadzenRow>
         </EditForm>
     </RadzenCard>
     <RadzenCard>
-        <RadzenRow>
-            <RadzenColumn Size="12">
-                <RadzenStack>
-                    @if (new[] { ".doc", ".docx", ".pdf" }.Contains(Path.GetExtension(_document.FileName.ToLowerInvariant()))) {
-                        <embed src="@("https://localhost:7280/" + (new [] { ".doc", ".docx" }.Contains(Path.GetExtension(_document.FileName)) ? ("previews/" + Path.GetFileNameWithoutExtension(_document.FileName) + ".pdf") : ("documents/" + _document.FileName)))" style="height:800px;" />
-                    } else {
-                        <img src="@("https://localhost:7280/documents/" + _document.FileName)" />
-                    }
-                </RadzenStack>
-            </RadzenColumn>
-        </RadzenRow>
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                <RadzenText TextStyle="TextStyle.H5">Treść dokumentu</RadzenText>
+                <RadzenButton Text="Pobierz" Click="@(() => _documentService.DownloadFile(_document.FileName))"/>
+            </RadzenStack>
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenStack>
+                        @if (new[] { ".doc", ".docx", ".pdf" }.Contains(Path.GetExtension(_document.FileName.ToLowerInvariant()))) {
+                            <embed src="@("https://localhost:7280/" + (new [] { ".doc", ".docx" }.Contains(Path.GetExtension(_document.FileName)) ? ("previews/" + Path.GetFileNameWithoutExtension(_document.FileName) + ".pdf") : ("documents/" + _document.FileName)))" style="height:800px;" />
+                        } else {
+                            <img src="@("https://localhost:7280/documents/" + _document.FileName)" alt="@_document.Name"/>
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenStack>
     </RadzenCard>
-</div>
+    @if (_acceptable) {
+        <RadzenCard>
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenText TextStyle="TextStyle.H5">Oceń prawidłowość dokumnetu</RadzenText>
+                    <EditForm Model="@_feedback" OnValidSubmit="@GiveFeedback">
+                        <FluentValidationValidator @ref="_fluentValidationValidatorFeedback" DisableAssemblyScanning="true" />
+                        <ValidationSummary />
+
+                        <RadzenStack Gap="1rem">
+                            <RadzenFormField Text="Informacja zwrotna dla twórcy">
+                                <RadzenTextArea @bind-Value="@_feedback.Feedback" Rows="10" Name="FeedbackNote" />
+                            </RadzenFormField>
+                            <RadzenStack Orientation="Orientation.Horizontal">
+                                <RadzenButton Text="Akceptuj dokument" Click="@(() => SubmitWithValidation(true))" ButtonStyle="ButtonStyle.Success" />
+                                <RadzenButton Text="Odrzuć dokument" Click="@(() => SubmitWithValidation(false))" ButtonStyle="ButtonStyle.Danger" />
+                            </RadzenStack>
+                        </RadzenStack>
+                    </EditForm>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenCard>
+    } else {
+        <RadzenCard>
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenText TextStyle="TextStyle.H5">Informacja zwrotna od sprawdzających dokument</RadzenText>
+                    <RadzenStack Gap="10px">
+                        @foreach(var request in _requests) {
+                            <RadzenCard Variant="Variant.Outlined" Style="@(request.AcceptanceRequestStatus == AcceptanceRequestStatusDto.Accepted ? "background-color: #BFEE90" : "background-color: #ffb09c")">
+                                <RadzenStack Gap="10px">
+                                    <RadzenStack Orientation="Orientation.Horizontal">
+                                        <RadzenText Text="@(request.User.FirstName + " " + request.User.LastName + " (" + request.User.PositionLevel.Name + " " + request.User.Position + ")")" TextStyle="TextStyle.Subtitle1" />
+                                        @if(request.AcceptanceRequestStatus == AcceptanceRequestStatusDto.Accepted) {
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="Zaakceptowano" />
+                                        } else {
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="Odrzucono" />
+                                        }
+                                    </RadzenStack>
+                                    <RadzenText Text="@request.Feedback" TextStyle="TextStyle.Body1"/>
+                                </RadzenStack>
+                            </RadzenCard>
+                        }
+                        @if(_requests.Count == 0) {
+                            <RadzenText Text="Brak elementów do wyświetlenia" TextAlign="TextAlign.Center" TextStyle="TextStyle.Body1" />
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenCard>
+    }
+</RadzenStack>
 
 @code {
     [Parameter]
     public int Id { get; set; }
+    [Parameter]
+    public int? RequestId { get; set; }
 
-    private FluentValidationValidator? _fluentValidationValidator;
-    private AddDocumentDto _document = new();
+    private FluentValidationValidator? _fluentValidationValidatorDocument;
+    private FluentValidationValidator? _fluentValidationValidatorFeedback;
+    private UpdateDocumentDto _document = new();
     private List<DocumentTypeDto> _documentTypes = new();
     private List<DocumentFlowDto> _documentFlows = new();
     private InputFile _inputFileRef;
-    private DateTime CreatedAt;
-    private string UserName = String.Empty;
-    private bool Editable = false;
+    private DateTime _createdAt;
+    private string _userName = String.Empty;
+    private bool _editable = false;
+    private bool _acceptable = false;
+    private AddDocumentFeedbackDto _feedback = new();
+    private List<AcceptanceRequestDto> _requests = new();
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         _documentTypes = await _documentTypeService.GetAll();
         _documentFlows = await _documentFlowService.GetAll();
-        var doc = await _documentService.GetWithTypeFlowAndUser(Id);
-        _document = new AddDocumentDto() {
+        var doc = await _documentService.GetWithDetails(Id);
+        _document = new UpdateDocumentDto() {
             DocumentId = doc.DocumentId,
             Name = doc.Name,
             Description = doc.Description,
@@ -118,9 +191,14 @@
             UserId = doc.User.UserId,
             DocumentFlowId = doc.DocumentFlow is null ? null : doc.DocumentFlow.DocumentFlowId
         };
-        CreatedAt = doc.CreatedAt;
-        UserName = doc.User.FirstName + " " + doc.User.LastName;
-        Editable = _authStateProvider.CurrentUserId == doc.User.UserId && (doc.Status == DocumentStatusDto.Created || doc.Status == DocumentStatusDto.Rejected);
+        _requests = doc.AcceptanceRequests.Where(ar => ar.AcceptanceRequestStatus != AcceptanceRequestStatusDto.NotAnswered).ToList();
+        _createdAt = doc.CreatedAt;
+        _userName = doc.User.FirstName + " " + doc.User.LastName;
+        _editable = _authStateProvider.CurrentUserId == doc.User.UserId && (doc.Status == DocumentStatusDto.Created || doc.Status == DocumentStatusDto.Rejected);
+        if (RequestId != null) {
+            var accReq = await _acceptanceRequestService.Get((int)RequestId);
+            _acceptable = _authStateProvider.CurrentUserId != doc.User.UserId && accReq.User.UserId == _authStateProvider.CurrentUserId && doc.Status == DocumentStatusDto.WaitingForApproval && accReq.AcceptanceRequestStatus == AcceptanceRequestStatusDto.NotAnswered;
+        }
     }
 
     private async Task InputFileOpen()
@@ -146,6 +224,25 @@
             _document.Status = DocumentStatusDto.Created;
         }
         await _documentService.Update(_document);
+        await _navigationHelper.GoBackAsync();
+    }
+
+    private async void SubmitWithValidation(bool isValid)
+    {
+        _feedback.IsDocumentValid = isValid;
+
+        if (_fluentValidationValidatorFeedback?.Validate(options =>
+        {
+            options.IncludeAllRuleSets();
+        }) ?? false) {
+            await GiveFeedback();
+        }
+    }
+
+    private async Task GiveFeedback()
+    {
+        _feedback.AcceptanceRequestId = RequestId ?? -1;
+        await _acceptanceRequestService.GiveFeedback(_feedback);
         await _navigationHelper.GoBackAsync();
     }
 }

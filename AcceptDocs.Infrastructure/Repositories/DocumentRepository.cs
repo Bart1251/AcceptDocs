@@ -17,12 +17,15 @@ namespace AcceptDocs.Infrastructure.Repositories
                 .Include(d => d.DocumentFlow).ToList();
         }
 
-        public Document GetWithTypeFlowAndUser(int id)
+        public Document GetWithDetails(int id)
         {
             return _context.Documents.Where(d => d.DocumentId == id)
+                .Include(d => d.AcceptanceRequests)
+                    .ThenInclude(ar => ar.User)
+                        .ThenInclude(u => u.PositionLevel)
                 .Include(d => d.DocumentType)
                 .Include(d => d.User)
-                .Include(d => d.DocumentFlow).First();
+                .Include(d => d.DocumentFlow).FirstOrDefault()!;
         }
     }
 }

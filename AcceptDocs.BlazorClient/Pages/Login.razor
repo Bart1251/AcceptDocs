@@ -4,6 +4,7 @@
 @inject AuthenticationStateProvider _authStateProvider
 @inject NavigationManager _navigationManager
 @inject IAuthService _authService;
+@inject NotificationService _notificationService
 
 
 <PageTitle>Login</PageTitle>
@@ -42,7 +43,13 @@
             _navigationManager.NavigateTo("/");
         }
         else {
-            //wyświetl błąd
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Nie udało się zalogować",
+                Detail = "Podano błędny login lub hasło.",
+                Duration = 4000
+            });
         }
     } 
 }

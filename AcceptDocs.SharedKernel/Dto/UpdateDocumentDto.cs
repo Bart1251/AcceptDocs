@@ -3,8 +3,9 @@ using Newtonsoft.Json;
 
 namespace AcceptDocs.SharedKernel.Dto
 {
-    public class AddDocumentDto
+    public class UpdateDocumentDto
     {
+        public int DocumentId { get; set; }
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
         public int DocumentTypeId { get; set; }

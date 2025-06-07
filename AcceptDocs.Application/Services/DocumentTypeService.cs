@@ -19,9 +19,9 @@ namespace AcceptDocs.Application.Services
         public int Create(DocumentTypeDto dto)
         {
             var documentType = _mapper.Map<DocumentType>(dto);
-            int id = _appUnitOfWork.DocumentTypeRepository.Insert(documentType);
+            DocumentType dbType = _appUnitOfWork.DocumentTypeRepository.Insert(documentType);
             _appUnitOfWork.Commit();
-            return id;
+            return dbType.DocumentTypeId;
         }
 
         public void Delete(int id)

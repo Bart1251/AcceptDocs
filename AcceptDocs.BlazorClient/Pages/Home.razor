@@ -1,7 +1,9 @@
 ﻿@page "/"
 @attribute [Authorize]
 
-<h3>Home</h3>
+@inject CustomAuthStateProvider _authStateProvider
+
+
 
 @code {
 

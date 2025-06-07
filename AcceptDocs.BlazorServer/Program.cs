@@ -25,7 +25,7 @@ namespace AcceptDocs.BlazorServer
             builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
             builder.Services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlite("Data Source=/../database.db"));
+                    options.UseSqlite("Data Source=" + Directory.GetCurrentDirectory() + "/../database.db"));
 
             builder.Services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
             builder.Services.AddScoped<DataSeeder>();
@@ -40,6 +40,8 @@ namespace AcceptDocs.BlazorServer
             builder.Services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+            builder.Services.AddScoped<IAcceptanceRequestService, AcceptanceRequestService>();
+            builder.Services.AddScoped<IAcceptanceRequestRepository, AcceptanceRequestRepository>();
 
             builder.Services.AddScoped<IValidator<AddUserDto>, RegisterAddUserDtoValidator>();
             builder.Services.AddScoped<IValidator<UpdateUserDto>, RegisterUpdateUserDtoValidator>();
@@ -69,10 +71,10 @@ namespace AcceptDocs.BlazorServer
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
 
-            using (var scope = app.Services.CreateScope()) {
-                var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-                dataSeeder.Seed();
-            }
+            //using (var scope = app.Services.CreateScope()) {
+            //    var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+            //    dataSeeder.Seed();
+            //}
 
             app.Run();
         }

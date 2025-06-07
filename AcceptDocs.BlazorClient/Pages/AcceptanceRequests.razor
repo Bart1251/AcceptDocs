@@ -1,0 +1,69 @@
+﻿@page "/request"
+@attribute [Authorize]
+
+@inject IAcceptanceRequestService _acceptanceRequestService
+@inject DialogService _dialogService
+@inject CustomAuthStateProvider _authStateProvider
+
+<PageTitle>Dokumenty do sprawdzenia</PageTitle>
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <h3>Dokumenty do sprawdzenia</h3>
+    </div>
+
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_acceptanceRequests" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <Columns>
+            <RadzenDataGridColumn Property="AcceptanceRequestId" Title="Id" Width="100px" />
+            <RadzenDataGridColumn Title="Nazwa dokumentu" >
+                <Template Context="request">
+                    @request.Document?.Name
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Rodzaj dokumentu">
+                <Template Context="request">
+                    @request.Document?.DocumentType?.Name
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Flow dokumentu">
+                <Template Context="request">
+                    @request.Document?.DocumentFlow?.Name
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Moja decyzja">
+                <Template Context="request">
+                    <span class="@(request.AcceptanceRequestStatus == AcceptanceRequestStatusDto.Accepted ? "good" : (request.AcceptanceRequestStatus == AcceptanceRequestStatusDto.Rejested ? "bad": "regular"))">
+                        @(EnumHelper.GetDescription(request.AcceptanceRequestStatus))
+                    </span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Status dokumentu">
+                <Template Context="request">
+                    <span class="@(request.Document.Status == DocumentStatusDto.Approved ? "good" : (request.Document.Status == DocumentStatusDto.Rejected ? "bad": "regular"))">
+                        @(EnumHelper.GetDescription(request.Document.Status))
+                    </span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Data utworzenia">
+                <Template Context="request">
+                    @request.Document?.CreatedAt
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
+                <Template Context="request">
+                    <NavigationButton Icon="info" Size="ButtonSize.Small" Path="@("document/details/" + request.Document.DocumentId + "/" + request.AcceptanceRequestId)" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<AcceptanceRequestDto> _acceptanceRequests = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _acceptanceRequests = await _acceptanceRequestService.GetAllForUser(_authStateProvider.CurrentUserId ?? -1);
+    }
+}

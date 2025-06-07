@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace AcceptDocs.SharedKernel.Dto
 {
@@ -23,6 +17,7 @@ namespace AcceptDocs.SharedKernel.Dto
         public int AcceptanceRequestId { get; set; }
         public UserDto User { get; set; }
         public DocumentDto Document { get; set; }
-        public AcceptanceRequestStatusDto AcceptanceRequestStatus { get; set; } = AcceptanceRequestStatusDto.NotAnswered;
+        public AcceptanceRequestStatusDto AcceptanceRequestStatus { get; set; }
+        public string Feedback { get; set; } = String.Empty;
     }
 }

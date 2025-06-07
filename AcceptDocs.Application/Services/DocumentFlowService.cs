@@ -25,9 +25,9 @@ namespace AcceptDocs.Application.Services
         public int Create(AddDocumentFlowDto dto)
         {
             var flow = _mapper.Map<DocumentFlow>(dto);
-            int id = _appUnitOfWork.DocumentFlowRepository.Insert(flow);
+            DocumentFlow dbFlow = _appUnitOfWork.DocumentFlowRepository.Insert(flow);
             _appUnitOfWork.Commit();
-            return id;
+            return dbFlow.DocumentFlowId;
         }
 
         public void Delete(int id)

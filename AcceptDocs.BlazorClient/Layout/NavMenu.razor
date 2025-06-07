@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject IAcceptanceRequestService _acceptanceRequestService
+@inject CustomAuthStateProvider _authStateProvider
+@inject NavigationManager _navigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">AcceptDocs</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -15,8 +19,22 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="document">
+            <NavLink class="nav-link" href="document" Match="NavLinkMatch.All">
                 <RadzenIcon Icon="docs" style="margin-right: 10px" /> Moje dokumenty
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link position-relative" href="request" Match="NavLinkMatch.All">
+                <RadzenIcon Icon="task_alt" style="margin-right: 10px;" />
+                Do sprawdzenia
+                @if (_checkBadgeCount > 0) {
+                    <RadzenBadge Style="position: absolute; top: -4px; right: -4px" Text="@_checkBadgeCount.ToString()" />
+                }
+            </NavLink>
+        </div>
+        <div class="nav-item px-3" style="margin-top: 20px; border-top: 1px solid #666;">
+            <NavLink class="nav-link" href="logout" Match="NavLinkMatch.All">
+                <RadzenIcon Icon="logout" style="margin-right: 10px" /> Wyloguj
             </NavLink>
         </div>
     </nav>
@@ -24,11 +42,32 @@
 
 @code {
     private bool collapseNavMenu = true;
-
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private int _checkBadgeCount = 0;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _navigationManager.LocationChanged += OnLocationChanged;
+        await UpdateBadges();
+    }
+
+    private async void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        await UpdateBadges();
+        StateHasChanged();
+    }
+
+    private async Task UpdateBadges()
+    {
+        await _authStateProvider.GetAuthenticationStateAsync();
+        if (_authStateProvider.CurrentUserId != null) {
+            _checkBadgeCount = (await _acceptanceRequestService.GetAllForUser(_authStateProvider.CurrentUserId ?? -1)).Count(ar => ar.AcceptanceRequestStatus == AcceptanceRequestStatusDto.NotAnswered && ar.Document.Status == DocumentStatusDto.WaitingForApproval);
+        }
     }
 }

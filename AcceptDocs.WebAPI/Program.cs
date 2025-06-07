@@ -37,12 +37,14 @@ namespace AcceptDocs.WebAPI
                 builder.Services.AddSwaggerGen();
 
                 builder.Services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlite("Data Source=/../database.db"));
+                    options.UseSqlite("Data Source=" + Directory.GetCurrentDirectory() + "/../database.db"));
 
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
                 builder.Services.AddFluentValidationAutoValidation();
                 builder.Services.AddScoped<IValidator<AddDocumentDto>, RegisterAddDocumentDtoValidator>();
+                builder.Services.AddScoped<IValidator<UpdateDocumentDto>, RegisterUpdateDocumentDtoValidator>();
+                builder.Services.AddScoped<IValidator<AddDocumentFeedbackDto>, RegisterAddDocumentFeedbackDtoValidator>();
 
                 builder.Services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
                 builder.Services.AddScoped<DataSeeder>();
@@ -56,6 +58,8 @@ namespace AcceptDocs.WebAPI
                 builder.Services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
                 builder.Services.AddScoped<IDocumentService, DocumentService>();
                 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+                builder.Services.AddScoped<IAcceptanceRequestService, AcceptanceRequestService>();
+                builder.Services.AddScoped<IAcceptanceRequestRepository, AcceptanceRequestRepository>();
 
                 builder.Services.AddScoped<ExceptionMiddleware>();
 
@@ -98,10 +102,10 @@ namespace AcceptDocs.WebAPI
                 app.MapControllers();
                 app.UseCors("AcceptDocs");
 
-                using (var scope = app.Services.CreateScope()) {
-                    var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-                    dataSeeder.Seed();
-                }
+                //using (var scope = app.Services.CreateScope()) {
+                //    var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+                //    dataSeeder.Seed();
+                //}
 
                 app.Run();
 

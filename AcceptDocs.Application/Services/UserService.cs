@@ -31,9 +31,9 @@ namespace AcceptDocs.Application.Services
         {
             var user = _mapper.Map<User>(dto);
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            int id = _appUnitOfWork.UserRepository.Insert(user);
+            User dbUser = _appUnitOfWork.UserRepository.Insert(user);
             _appUnitOfWork.Commit();
-            return id;
+            return dbUser.UserId;
         }
 
         public List<UserDto> GetAllWithPositionLevel()
@@ -61,7 +61,7 @@ namespace AcceptDocs.Application.Services
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.Login = dto.Login;
-            user.Password = dto.Password;
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             user.PositionLevelId = dto.PositionLevelId;
             user.Position = dto.Position;
             _appUnitOfWork.Commit();

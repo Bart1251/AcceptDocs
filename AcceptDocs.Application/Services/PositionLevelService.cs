@@ -19,9 +19,9 @@ namespace AcceptDocs.Application.Services
         public int Create(PositionLevelDto dto)
         {
             var positionLevel = _mapper.Map<PositionLevel>(dto);
-            int id = _appUnitOfWork.PositionLevelRepository.Insert(positionLevel);
+            PositionLevel dbLevel = _appUnitOfWork.PositionLevelRepository.Insert(positionLevel);
             _appUnitOfWork.Commit();
-            return id;
+            return dbLevel.PositionLevelId;
         }
 
         public void Delete(int id)

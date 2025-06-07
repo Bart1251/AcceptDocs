@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="AcceptDocs.BlazorClient.styles.css" rel="stylesheet" />
-    <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/standard.css">
 </head>
 
 <body>
@@ -35,6 +35,15 @@
         };
         window.triggerClick = function (element) {
             element.click();
+        };
+        window.downloadFileFromBytes = (fileName, contentType, base64Data) => {
+            const blob = new Blob([new Uint8Array(base64Data)], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(url);
         };
     </script>
 </body>

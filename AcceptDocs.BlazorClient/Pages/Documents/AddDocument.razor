@@ -34,10 +34,17 @@
                             <RadzenTextArea @bind-Value="@_document.Description" Name="Description" />
                         </RadzenFormField>
                         <RadzenFormField Text="Wartość">
-                            <RadzenNumeric @bind-Value="@_document.Value" Name="Value" />
+                            <ChildContent>
+                                <RadzenNumeric @bind-Value="@_document.Value" Name="Value" Format="N2" />
+                            </ChildContent>
+                            <End>zł</End>
                         </RadzenFormField>
                         <RadzenFormField Text="Flow dokumentu">
-                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" TextProperty="Name" ValueProperty="DocumentFlowId" Name="DocumentFlowId" />
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" >
+                                <Template Context="documentFlow">
+                                    @(documentFlow.Name + " - " + EnumHelper.GetDescription(documentFlow.SelectionMethod))
+                                </Template>
+                            </RadzenDropDown>
                         </RadzenFormField>
                     </RadzenStack>
                 </RadzenColumn>

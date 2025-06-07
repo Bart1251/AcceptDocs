@@ -39,7 +39,11 @@ namespace AcceptDocs.Application.Validators
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Hasło jest wymagane")
                 .MinimumLength(5).WithMessage("Wymagana długość hasła to 5-30 znaków")
-                .MaximumLength(30).WithMessage("Wymagana długość hasła to 5-30 znaków");
+                .MaximumLength(30).WithMessage("Wymagana długość hasła to 5-30 znaków")
+                .Matches("[A-Z]").WithMessage("Hasło musi zawierać co najmniej jedną dużą literę")
+                .Matches("[a-z]").WithMessage("Hasło musi zawierać co najmniej jedną małą literę")
+                .Matches("[0-9]").WithMessage("Hasło musi zawierać co najmniej jedną cyfrę")
+                .Matches("[^a-zA-Z0-9]").WithMessage("Hasło musi zawierać co najmniej jeden znak specjalny");
 
             RuleFor(u => u.Position)
                 .Cascade(CascadeMode.Stop)

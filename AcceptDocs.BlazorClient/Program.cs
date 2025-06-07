@@ -1,6 +1,7 @@
 using AcceptDocs.Application.Validators;
 using AcceptDocs.BlazorClient.Helpers;
 using AcceptDocs.BlazorClient.Services;
+using AcceptDocs.BlazorClient.Validators;
 using AcceptDocs.SharedKernel.Dto;
 using Blazored.LocalStorage;
 using FluentValidation;
@@ -23,10 +24,13 @@ namespace AcceptDocs.BlazorClient
             builder.Services.AddScoped<IDocumentFlowService, DocumentFlowService>();
             builder.Services.AddScoped<IDocumentTypeService, DocumentTypeService>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
+            builder.Services.AddScoped<IAcceptanceRequestService, AcceptanceRequestService>();
 
             builder.Services.AddScoped<NavigationHelper>();
 
             builder.Services.AddScoped<IValidator<AddDocumentDto>, RegisterAddDocumentDtoValidator>();
+            builder.Services.AddScoped<IValidator<UpdateDocumentDto>, RegisterUpdateDocumentDtoValidator>();
+            builder.Services.AddScoped<IValidator<AddDocumentFeedbackDto>, RegisterAddDocumentFeedbackDtoValidator>();
 
             builder.Services.AddScoped<CustomAuthStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(provider =>

@@ -29,7 +29,7 @@ namespace AcceptDocs.Infrastructure.Repositories
 
         public User GetWithPositionLevel(int id)
         {
-            return _context.Users.Include(u => u.PositionLevel).Where(u => u.UserId == id).First();
+            return _context.Users.Include(u => u.PositionLevel).Where(u => u.UserId == id).FirstOrDefault()!;
         }
     }
 }

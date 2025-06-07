@@ -1,6 +1,5 @@
 ﻿using AcceptDocs.Domain.Contracts;
 using AcceptDocs.Domain.Models;
-using AcceptDocs.SharedKernel.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcceptDocs.Infrastructure.Repositories
@@ -21,7 +20,7 @@ namespace AcceptDocs.Infrastructure.Repositories
             return _context.DocumentFlows
                 .Include(df => df.DocumentFlowUsers)
                     .ThenInclude(dfu => dfu.User)
-                .First(df => df.DocumentFlowId == id).DocumentFlowUsers.ToList();
+                .FirstOrDefault(df => df.DocumentFlowId == id)?.DocumentFlowUsers.ToList()!;
         }
 
         public void AttachUser(DocumentFlowUser documentFlowUser)
@@ -31,8 +30,9 @@ namespace AcceptDocs.Infrastructure.Repositories
 
         public void DetachUser(int documentFlowId, int userId)
         {
-            var documentFlowUser = _context.DocumentFlowUsers.First(dfu => dfu.UserId == userId && dfu.DocumentFlowId == documentFlowId);
-            _context.DocumentFlowUsers.Remove(documentFlowUser);
+            var documentFlowUser = _context.DocumentFlowUsers.FirstOrDefault(dfu => dfu.UserId == userId && dfu.DocumentFlowId == documentFlowId);
+            if(documentFlowUser != null)
+                _context.DocumentFlowUsers.Remove(documentFlowUser);
         }
 
         public List<User> GetNotAttachedUsers(int id)
@@ -46,7 +46,17 @@ namespace AcceptDocs.Infrastructure.Repositories
 
         public DocumentFlowUser GetUserAttachment(int userId, int documentFlowId)
         {
-            return _context.DocumentFlowUsers.First(dfu => dfu.UserId == userId && dfu.DocumentFlowId == documentFlowId);
+            return _context.DocumentFlowUsers.FirstOrDefault(dfu => dfu.UserId == userId && dfu.DocumentFlowId == documentFlowId)!;
+        }
+
+        public bool CanChangeSelectionMethod(int id, SelectionMethod replacement)
+        {
+            var documentFlow = _context.DocumentFlows.Include(df => df.Documents).FirstOrDefault(df => df.DocumentFlowId == id);
+            if (documentFlow == null)
+                return true;
+            if (documentFlow.SelectionMethod == replacement)
+                return true;
+            return documentFlow.Documents.Count(d => d.Status == DocumentStatus.WaitingForApproval) == 0;
         }
     }
 }

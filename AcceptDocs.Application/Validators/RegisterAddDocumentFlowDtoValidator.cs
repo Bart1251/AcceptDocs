@@ -10,7 +10,7 @@ namespace AcceptDocs.Application.Validators
             RuleFor(f => f.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Nazwa jest wymagana")
-                .MaximumLength(20).WithMessage("Wymagana długość nazwy to 1-20 znaków");
+                .MaximumLength(40).WithMessage("Wymagana długość nazwy to 1-40 znaków");
 
             RuleFor(f => f.Description)
                 .Cascade(CascadeMode.Stop)

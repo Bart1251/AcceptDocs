@@ -3,6 +3,7 @@ using AcceptDocs.SharedKernel.Dto;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Newtonsoft.Json;
 
 namespace AcceptDocs.WebAPI.Controllers
@@ -13,12 +14,14 @@ namespace AcceptDocs.WebAPI.Controllers
     public class DocumentController : ControllerBase
     {
         private readonly IDocumentService _documentService;
-        private readonly IValidator<AddDocumentDto> _validator;
+        private readonly IValidator<AddDocumentDto> _addValidator;
+        private readonly IValidator<UpdateDocumentDto> _updateValidator;
 
-        public DocumentController(IDocumentService documentService, IValidator<AddDocumentDto> validator)
+        public DocumentController(IDocumentService documentService, IValidator<AddDocumentDto> addValidator, IValidator<UpdateDocumentDto> updateValidator)
         {
             _documentService = documentService;
-            _validator = validator;
+            _addValidator = addValidator;
+            _updateValidator = updateValidator;
         }
 
         [HttpPost]
@@ -28,7 +31,7 @@ namespace AcceptDocs.WebAPI.Controllers
         public IActionResult Create([FromForm] IFormFile file, [FromForm] string document)
         {
             var doc = JsonConvert.DeserializeObject<AddDocumentDto>(document);
-            var result = _validator.Validate(doc);
+            var result = _addValidator.Validate(doc);
             if (!result.IsValid) {
                 return BadRequest(result);
             }
@@ -69,10 +72,10 @@ namespace AcceptDocs.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Get(int id)
         {
-            return Ok(_documentService.GetWithTypeFlowAndUser(id));
+            return Ok(_documentService.GetWithDetails(id));
         }
 
-        [HttpGet("all/{id}")]
+        [HttpGet("user/{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAllForUserWithTypeAndFlow(int id)
@@ -106,10 +109,10 @@ namespace AcceptDocs.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Update(int id, [FromForm] IFormFile file, [FromForm] string document)
+        public IActionResult Update(int id, [FromForm] IFormFile? file, [FromForm] string document)
         {
-            var doc = JsonConvert.DeserializeObject<AddDocumentDto>(document);
-            var result = _validator.Validate(doc);
+            var doc = JsonConvert.DeserializeObject<UpdateDocumentDto>(document);
+            var result = _updateValidator.Validate(doc);
             if (!result.IsValid) {
                 return BadRequest(result);
             }
@@ -151,6 +154,23 @@ namespace AcceptDocs.WebAPI.Controllers
 
             _documentService.Update(doc);
             return NoContent();
+        }
+
+        [HttpGet("download/{fileName}")]
+        public ActionResult DownloadFile(string fileName)
+        {
+            var dir = Directory.GetCurrentDirectory();
+            var filePath = Path.Combine(dir, "wwwroot", "documents", fileName);
+            if (!System.IO.File.Exists(filePath)) {
+                return NotFound();
+            }
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string mimeType)) {
+                mimeType = "application/octet-stream";
+            }
+
+            return PhysicalFile(filePath, mimeType, fileName);
         }
     }
 }

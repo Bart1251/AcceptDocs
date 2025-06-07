@@ -8,7 +8,7 @@ namespace AcceptDocs.Domain.Contracts
         TEntity Get(int id);
         IList<TEntity> GetAll();
         IList<TEntity> Find(Expression<Func<TEntity, bool>> expression);
-        int Insert(TEntity entity);
+        TEntity Insert(TEntity entity);
         void Delete(TEntity entity);
     }
 }

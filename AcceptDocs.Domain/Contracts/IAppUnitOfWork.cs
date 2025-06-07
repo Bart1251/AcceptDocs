@@ -7,6 +7,7 @@
         public IDocumentFlowRepository DocumentFlowRepository { get; }
         public IDocumentTypeRepository DocumentTypeRepository { get; }
         public IDocumentRepository DocumentRepository { get; }
+        public IAcceptanceRequestRepository AcceptanceRequestRepository { get; }
         //repositories
 
         void Commit();

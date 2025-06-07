@@ -10,5 +10,6 @@ namespace AcceptDocs.Domain.Contracts
         List<User> GetNotAttachedUsers(int id);
         List<DocumentFlow> GetAllWithUsers();
         DocumentFlowUser GetUserAttachment(int userId, int documentFlowId);
+        bool CanChangeSelectionMethod(int id, SelectionMethod replacement);
     }
 }
