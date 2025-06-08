@@ -31,7 +31,7 @@ namespace AcceptDocs.Infrastructure.Repositories
                 .Include(df => df.DocumentFlowUsers)
                     .ThenInclude(dfu => dfu.User)
                         .ThenInclude(u => u.PositionLevel)
-                .FirstOrDefault(df => df.DocumentFlowId == id)?.DocumentFlowUsers.ToList()!;
+                .FirstOrDefault(df => df.DocumentFlowId == id)?.DocumentFlowUsers.OrderBy(dfu => dfu.Value).ToList()!;
         }
 
         public void AttachUser(DocumentFlowUser documentFlowUser)

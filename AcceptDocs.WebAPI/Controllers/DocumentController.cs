@@ -125,9 +125,6 @@ namespace AcceptDocs.WebAPI.Controllers
                 return BadRequest(result);
             }
 
-            doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
-            doc.FileName = doc.FileName.Replace(':', '-');
-
             if (file != null) {
                 if (_documentService.Get(id) is DocumentDto old) {
                     string oldFileName = old.FileName;
@@ -139,6 +136,9 @@ namespace AcceptDocs.WebAPI.Controllers
                     if (System.IO.File.Exists(previewPath))
                         System.IO.File.Delete(previewPath);
                 }
+
+                doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
+                doc.FileName = doc.FileName.Replace(':', '-');
 
                 var dir = Directory.GetCurrentDirectory();
                 var saveDirectory = Path.Combine(dir, "wwwroot", "documents");

@@ -108,13 +108,23 @@
         }
         _document.UserId = _authStateProvider.CurrentUserId??-1;
         if(await _documentService.SubmitDocument(_document)) {
-            _notificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Sukces",
-                Detail = "Pomyślnie utworzono dokument",
-                Duration = 4000
-            });
+            if(_document.DocumentFlowId != null) {
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie utworzono i wysłano dokument do akceptacji",
+                    Duration = 4000
+                });
+            } else {
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie utworzono dokument",
+                    Duration = 4000
+                });
+            }
             await _navigationHelper.GoBackAsync();
         } else {
             _notificationService.Notify(new NotificationMessage

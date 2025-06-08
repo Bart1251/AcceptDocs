@@ -27,6 +27,7 @@ namespace AcceptDocs.Infrastructure.Repositories
                     .ThenInclude(d => d.DocumentFlow)
                 .Include(ar => ar.Document)
                     .ThenInclude(d => d.DocumentType)
+                .OrderByDescending(ar => ar.Document.CreatedAt)
                 .ToList();
         }
     }
