@@ -25,6 +25,7 @@ namespace AcceptDocs.BlazorClient
             builder.Services.AddScoped<IDocumentTypeService, DocumentTypeService>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<IAcceptanceRequestService, AcceptanceRequestService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped<NavigationHelper>();
 

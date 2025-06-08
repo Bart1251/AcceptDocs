@@ -1,14 +1,15 @@
 ﻿@page "/positionLevel/add"
 @inject IPositionLevelService _positionLevelService
 @inject NavigationHelper _navigationHelper
+@inject NotificationService _notificationService
 
 <PageTitle>Dodaj poziom stanowiska</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Dodawanie poziomu stanowiska</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Dodawanie poziomu stanowiska</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
         <EditForm Model="@_positionLevel" OnValidSubmit="@SubmitPositionLevel">
@@ -29,7 +30,7 @@
             </RadzenStack>
         </EditForm>
     </RadzenCard>
-</div>
+</RadzenStack>
 
 
 
@@ -40,6 +41,13 @@
     private async Task SubmitPositionLevel()
     {
         _positionLevelService.Create(_positionLevel);
+        _notificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Sukces",
+            Detail = "Pomyślnie utworzono poziom stanowiska",
+            Duration = 4000
+        });
         await _navigationHelper.GoBackAsync();
     }
 }

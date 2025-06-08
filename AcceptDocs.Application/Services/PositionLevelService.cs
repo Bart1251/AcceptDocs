@@ -16,6 +16,11 @@ namespace AcceptDocs.Application.Services
             _mapper = mapper;
         }
 
+        public bool CanDelete(int id)
+        {
+            return _appUnitOfWork.PositionLevelRepository.CanDelete(id);
+        }
+
         public int Create(PositionLevelDto dto)
         {
             var positionLevel = _mapper.Map<PositionLevel>(dto);

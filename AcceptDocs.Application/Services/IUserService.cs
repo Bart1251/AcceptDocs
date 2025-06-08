@@ -10,5 +10,6 @@ namespace AcceptDocs.Application.Services
         UserDto GetWithPositionLevel(int id);
         void Update(UpdateUserDto dto);
         string Login(UserLoginDto dto);
+        bool CanDeleteUser(int id);
     }
 }

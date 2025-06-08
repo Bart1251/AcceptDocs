@@ -1,14 +1,15 @@
 ﻿@page "/positionLevel"
 @inject IPositionLevelService _positionLevelService
 @inject DialogService _dialogService
+@inject NotificationService _notificationService
 
 <PageTitle>Poziomy stanowisk</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Poziomy stanowisk</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Poziomy stanowisk</RadzenText>
         <NavigationButton Text="Dodaj poziom stanowiska" Path="positionLevel/add" />
-    </div>
+    </RadzenStack>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_positionLevels" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <Columns>
@@ -24,7 +25,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</div>
+</RadzenStack>
 
 @code {
     private List<PositionLevelDto> _positionLevels = new();
@@ -37,19 +38,36 @@
 
     private async Task Delete(int id)
     {
-        bool? confirmed = await _dialogService.Confirm(
-            "Czy na pewno chcesz usunąć poziom stanowiska?",
-            "Potwierdzenie",
-            new ConfirmOptions()
+        if(_positionLevelService.CanDelete(id)) {
+            bool? confirmed = await _dialogService.Confirm(
+                "Czy na pewno chcesz usunąć poziom stanowiska?",
+                "Potwierdzenie",
+                new ConfirmOptions()
                 {
                     OkButtonText = "Tak",
                     CancelButtonText = "Nie",
                 }
-        );
+            );
 
-        if (confirmed == true) {
-            _positionLevelService.Delete(id);
-            OnInitialized();
+            if (confirmed == true) {
+                _positionLevelService.Delete(id);
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie usunięto poziom stanowiska",
+                    Duration = 4000
+                });
+                OnInitialized();
+            }
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Nie można usunąć poziomu stanowiska",
+                Detail = "Istnieją użytkownicy z przypisanym poziomem usuń ich lub zmodyfikuj zanim usuniesz poziom.",
+                Duration = 4000
+            });
         }
     }
 }

@@ -9,6 +9,7 @@
 @inject IJSRuntime _js
 @inject NavigationHelper _navigationHelper
 @inject CustomAuthStateProvider _authStateProvider
+@inject NotificationService _notificationService
 
 <PageTitle>Dokument</PageTitle>
 
@@ -42,8 +43,8 @@
                             </ChildContent>
                             <End>zł</End>
                         </RadzenFormField>
-                        <RadzenFormField Text="Flow dokumentu" class="@(!_editable ? "readonly" : "")">
-                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" ReadOnly="@(!_editable)" >
+                        <RadzenFormField Text="Przepływ" class="@(!_editable ? "readonly" : "")">
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz przepływ dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" ReadOnly="@(!_editable)" >
                                 <Template Context="documentFlow">
                                     @(documentFlow.Name + " - " + EnumHelper.GetDescription(documentFlow.SelectionMethod))
                                 </Template>
@@ -64,7 +65,7 @@
                         </RadzenFormField>
                         @if(_editable) {
                             <InputFile style="display: none;" @ref="_inputFileRef" OnChange="@InputFilechange" />
-                            <RadzenButton Text="Zmień dokument" Click="@InputFileOpen" Style="margin-top: 8px" />
+                            <RadzenButton Text="Zmień załącznik" Click="@InputFileOpen" Style="margin-top: 8px" />
                             @if (_document.File is not null) {
                                 <RadzenCard>
                                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
@@ -140,6 +141,7 @@
                                         } else {
                                             <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="Odrzucono" />
                                         }
+                                        <RadzenText Style="margin-left: auto;" TextStyle="TextStyle.Subtitle2">@request.StatusChangedAt</RadzenText>
                                     </RadzenStack>
                                     <RadzenText Text="@request.Feedback" TextStyle="TextStyle.Body1"/>
                                 </RadzenStack>
@@ -198,6 +200,8 @@
         if (RequestId != null) {
             var accReq = await _acceptanceRequestService.Get((int)RequestId);
             _acceptable = _authStateProvider.CurrentUserId != doc.User.UserId && accReq.User.UserId == _authStateProvider.CurrentUserId && doc.Status == DocumentStatusDto.WaitingForApproval && accReq.AcceptanceRequestStatus == AcceptanceRequestStatusDto.NotAnswered;
+            if (accReq.User.UserId != _authStateProvider.CurrentUserId)
+                await _navigationHelper.GoBackAsync();
         }
     }
 
@@ -223,8 +227,24 @@
         } else {
             _document.Status = DocumentStatusDto.Created;
         }
-        await _documentService.Update(_document);
-        await _navigationHelper.GoBackAsync();
+        if (await _documentService.Update(_document)) {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie zmodyfikowano dokument",
+                Duration = 4000
+            });
+            await _navigationHelper.GoBackAsync();
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Wystąpił problem",
+                Detail = "Nie udało się zmodyfikować dokumentu",
+                Duration = 4000
+            });
+        }
     }
 
     private async void SubmitWithValidation(bool isValid)
@@ -242,7 +262,23 @@
     private async Task GiveFeedback()
     {
         _feedback.AcceptanceRequestId = RequestId ?? -1;
-        await _acceptanceRequestService.GiveFeedback(_feedback);
-        await _navigationHelper.GoBackAsync();
+        if (await _acceptanceRequestService.GiveFeedback(_feedback)) {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie oceniono dokument",
+                Duration = 4000
+            });
+            await _navigationHelper.GoBackAsync();
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Wystąpił problem",
+                Detail = "Nie udało się ocenić dokumentu",
+                Duration = 4000
+            });
+        }
     }
 }

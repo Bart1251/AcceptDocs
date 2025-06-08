@@ -11,5 +11,7 @@ namespace AcceptDocs.Domain.Contracts
         List<DocumentFlow> GetAllWithUsers();
         DocumentFlowUser GetUserAttachment(int userId, int documentFlowId);
         bool CanChangeSelectionMethod(int id, SelectionMethod replacement);
+        bool IsNameUsed(string name);
+        bool IsNameUsed(string name, int id);
     }
 }

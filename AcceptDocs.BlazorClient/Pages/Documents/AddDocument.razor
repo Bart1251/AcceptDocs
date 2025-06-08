@@ -7,14 +7,15 @@
 @inject IJSRuntime _js
 @inject NavigationHelper _navigationHelper
 @inject CustomAuthStateProvider _authStateProvider
+@inject NotificationService _notificationService
 
 <PageTitle>Dodaj dokument</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Dodawanie dokumentu</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Dodawanie dokumentu</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
         <EditForm Model="@_document" OnValidSubmit="@SubmitDocument">
@@ -39,8 +40,8 @@
                             </ChildContent>
                             <End>zł</End>
                         </RadzenFormField>
-                        <RadzenFormField Text="Flow dokumentu">
-                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz flow dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" >
+                        <RadzenFormField Text="Przepływ">
+                            <RadzenDropDown @bind-Value="@_document.DocumentFlowId" Placeholder="Wybierz przepływ dokumentu" Data="@_documentFlows" ValueProperty="DocumentFlowId" Name="DocumentFlowId" >
                                 <Template Context="documentFlow">
                                     @(documentFlow.Name + " - " + EnumHelper.GetDescription(documentFlow.SelectionMethod))
                                 </Template>
@@ -51,7 +52,7 @@
                 <RadzenColumn Size="12" SizeSM="6">
                     <RadzenStack>
                         <InputFile style="display: none;" @ref="_inputFileRef" OnChange="@InputFilechange"/>
-                        <RadzenButton Text="Wybierz dokument" Click="@InputFileOpen" Style="margin-top: 8px"/>
+                        <RadzenButton Text="Wybierz załącznik" Click="@InputFileOpen" Style="margin-top: 8px"/>
                         @if(_document.File is not null) {
                             <RadzenCard>
                                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
@@ -67,7 +68,7 @@
             </RadzenRow>
         </EditForm>
     </RadzenCard>
-</div>
+</RadzenStack>
 
 @code {
     private FluentValidationValidator? _fluentValidationValidator;
@@ -106,7 +107,23 @@
             _document.Status = DocumentStatusDto.Created;
         }
         _document.UserId = _authStateProvider.CurrentUserId??-1;
-        await _documentService.SubmitDocument(_document);
-        await _navigationHelper.GoBackAsync();
+        if(await _documentService.SubmitDocument(_document)) {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie utworzono dokument",
+                Duration = 4000
+            });
+            await _navigationHelper.GoBackAsync();
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Wystąpił problem",
+                Detail = "Nie udało się utworzyć dokumentu",
+                Duration = 4000
+            });
+        }
     }
 }

@@ -18,7 +18,11 @@ namespace AcceptDocs.Application.Validators
             RuleFor(f => f.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Nazwa jest wymagana")
-                .MaximumLength(40).WithMessage("Wymagana długość nazwy to 1-40 znaków");
+                .MaximumLength(40).WithMessage("Wymagana długość nazwy to 1-40 znaków")
+                .Custom((value, context) => {
+                    if (appUnitOfWork.DocumentFlowRepository.IsNameUsed(value, context.InstanceToValidate.DocumentFlowId))
+                        context.AddFailure("Name", "Istnieje już przepływ z taką nazwą");
+                });
 
             RuleFor(f => f.Description)
                 .Cascade(CascadeMode.Stop)
@@ -29,7 +33,7 @@ namespace AcceptDocs.Application.Validators
             RuleFor(f => f.SelectionMethod)
                 .Custom((value, context) => {
                     if (!appUnitOfWork.DocumentFlowRepository.CanChangeSelectionMethod(context.InstanceToValidate.DocumentFlowId, mapper.Map<SelectionMethod>(value)))
-                        context.AddFailure("SelectionMethod", "Nie można zmienić metody selekcji, ponieważ istnieją dokumenty, przypisane do flow, oczekujące na sprawdzenie");
+                        context.AddFailure("SelectionMethod", "Nie można zmienić metody selekcji, ponieważ istnieją dokumenty, przypisane do przepływu, oczekujące na sprawdzenie");
                 });
         }
     }

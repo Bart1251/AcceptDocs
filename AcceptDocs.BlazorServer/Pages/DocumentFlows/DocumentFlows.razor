@@ -1,14 +1,15 @@
 ﻿@page "/flow"
 @inject DialogService _dialogService
 @inject IDocumentFlowService _documentFlowService
+@inject NotificationService _notificationService
 
-<PageTitle>Flow dokumentów</PageTitle>
+<PageTitle>Przepływ dokumentów</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Flow dokumentów</h3>
-        <NavigationButton Text="Dodaj flow" Path="flow/add"/>
-    </div>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Przepływ dokumentów</RadzenText>
+        <NavigationButton Text="Dodaj przepływ" Path="flow/add"/>
+    </RadzenStack>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_flows" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <Columns>
@@ -41,7 +42,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</div>
+</RadzenStack>
 
 @code {
     private List<DocumentFlowDto> _flows = new();
@@ -55,7 +56,7 @@
     private async Task Delete(int id)
     {
         bool? confirmed = await _dialogService.Confirm(
-            "Czy na pewno chcesz usunąć flow?",
+            "Czy na pewno chcesz usunąć przepływ?",
             "Potwierdzenie",
             new ConfirmOptions()
                 {
@@ -66,6 +67,13 @@
 
         if (confirmed == true) {
             _documentFlowService.Delete(id);
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie usunięto przepływ",
+                Duration = 4000
+            });
             OnInitialized();
         }
     }

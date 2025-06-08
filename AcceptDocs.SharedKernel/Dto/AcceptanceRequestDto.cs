@@ -19,5 +19,6 @@ namespace AcceptDocs.SharedKernel.Dto
         public DocumentDto Document { get; set; }
         public AcceptanceRequestStatusDto AcceptanceRequestStatus { get; set; }
         public string Feedback { get; set; } = String.Empty;
+        public DateTime? StatusChangedAt { get; set; }
     }
 }

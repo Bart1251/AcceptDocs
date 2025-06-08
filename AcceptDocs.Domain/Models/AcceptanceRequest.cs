@@ -16,5 +16,6 @@
         public Document Document { get; set; }
         public AcceptanceRequestStatus AcceptanceRequestStatus { get; set; } = AcceptanceRequestStatus.NotAnswered;
         public string Feedback { get; set; } = String.Empty;
+        public DateTime? StatusChangedAt { get; set; }
     }
 }

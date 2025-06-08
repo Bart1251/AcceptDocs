@@ -28,22 +28,24 @@ namespace AcceptDocs.Application.Validators
             RuleFor(u => u.Login)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Login jest wymagany")
-                .MinimumLength(5).WithMessage("Wymagana długość loginu to 5-20 znaków")
-                .MaximumLength(20).WithMessage("Wymagana długość loginu to 5-20 znaków")
+                .MinimumLength(2).WithMessage("Wymagana długość loginu to 2-20 znaków")
+                .MaximumLength(20).WithMessage("Wymagana długość loginu to 2-20 znaków")
                 .Custom((value, context) => {
                     if (appUnitOfWork.UserRepository.IsLoginUsed(value, context.InstanceToValidate.UserId))
                         context.AddFailure("Login", "Login jest już zajęty");
                 });
 
-            RuleFor(u => u.Password)
+            When(u => !string.IsNullOrEmpty(u.Password), () =>
+            {
+                RuleFor(u => u.Password)
                 .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Hasło jest wymagane")
                 .MinimumLength(5).WithMessage("Wymagana długość hasła to 5-30 znaków")
                 .MaximumLength(30).WithMessage("Wymagana długość hasła to 5-30 znaków")
                 .Matches("[A-Z]").WithMessage("Hasło musi zawierać co najmniej jedną dużą literę")
                 .Matches("[a-z]").WithMessage("Hasło musi zawierać co najmniej jedną małą literę")
                 .Matches("[0-9]").WithMessage("Hasło musi zawierać co najmniej jedną cyfrę")
                 .Matches("[^a-zA-Z0-9]").WithMessage("Hasło musi zawierać co najmniej jeden znak specjalny");
+            });
 
             RuleFor(u => u.Position)
                 .Cascade(CascadeMode.Stop)

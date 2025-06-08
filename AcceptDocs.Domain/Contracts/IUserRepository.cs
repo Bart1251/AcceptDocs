@@ -4,9 +4,10 @@ namespace AcceptDocs.Domain.Contracts
 {
     public interface IUserRepository : IRepository<User>
     {
-        public List<User> GetAllWithPositionLevel();
-        public bool IsLoginUsed(string login);
-        public bool IsLoginUsed(string login, int id);
-        public User GetWithPositionLevel(int id);
+        List<User> GetAllWithPositionLevel();
+        bool IsLoginUsed(string login);
+        bool IsLoginUsed(string login, int id);
+        User GetWithPositionLevel(int id);
+        bool CanDeleteUser(int id);
     }
 }

@@ -10,5 +10,6 @@ namespace AcceptDocs.Domain.Models
     {
         public int PositionLevelId { get; set; }
         public string Name { get; set; } = String.Empty;
+        public List<User> Users { get; set; } = new();
     }
 }

@@ -1,46 +1,62 @@
 ﻿@page "/flow/users/{id:int}"
 @inject DialogService _dialogService
 @inject IDocumentFlowService _documentFlowService
+@inject NotificationService _notificationService
+@inject IUserService _userService
 
 <PageTitle>Przypisane osoby</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Zarządzaj przypisanymi do flow @_flowName</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Zarządzaj przypisanymi do przepływu: @_flowName</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
     <RadzenRow Gap="1rem">
-        <RadzenColumn Size="12" SizeSM="6">
-            <h4>Dodani do flow</h4>
+        <RadzenColumn Size="12">
+            <RadzenText TextStyle="TextStyle.H6">Dodani do przepływu:</RadzenText>
             <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_attachedUsers" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
                 <Columns>
                     <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
                     <RadzenDataGridColumn Property="FirstName" Title="Imię" />
                     <RadzenDataGridColumn Property="LastName" Title="Nazwisko" />
-                    <RadzenDataGridColumn Property="Position" Title="Stanowisko" />
-                    <RadzenDataGridColumn Property="Value" Title="Kryterium wartości" />
+                    <RadzenDataGridColumn Title="Stanowisko">
+                        <Template Context="user">
+                            @(user.PositionLevel + " " + user.Position)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Title="Kryterium wartości" >
+                        <Template Context="user">
+                            @string.Format("{0:N2} zł", user.Value)
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
                         <Template Context="user">
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
                                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="@(() => Edit(user.UserId))" />
-                                <RadzenButton Icon="arrow_forward" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="@(() => DetachUser(user.UserId))" />
+                                <RadzenButton Icon="arrow_downward" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DetachUser(user.UserId))" />
                             </RadzenStack>
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
             </RadzenDataGrid>
         </RadzenColumn>
-        <RadzenColumn Size="12" SizeSM="6">
-            <h4>Dostępni by dołączyć</h4>
+    </RadzenRow>
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenText TextStyle="TextStyle.H6">Dostępni by dołączyć:</RadzenText>
             <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
                 <Columns>
                     <RadzenDataGridColumn Property="UserId" Title="Id" Width="100px" />
                     <RadzenDataGridColumn Property="FirstName" Title="Imię" />
                     <RadzenDataGridColumn Property="LastName" Title="Nazwisko" />
-                    <RadzenDataGridColumn Property="Position" Title="Stanowisko" />
+                    <RadzenDataGridColumn Property="Position" Title="Stanowisko">
+                        <Template Context="user">
+                            @(user.PositionLevel.Name + " " + user.Position)
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn Title="Akcje" Width="80px" Sortable="false" Filterable="false">
                         <Template Context="user">
-                            <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="@(() => AttachUser(user.UserId))" />
+                            <RadzenButton Icon="arrow_upward" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Click="@(() => AttachUser(user.UserId))" />
                         </Template>
                     </RadzenDataGridColumn>
                 </Columns>
@@ -48,7 +64,7 @@
         </RadzenColumn>
     </RadzenRow>
     
-</div>
+</RadzenStack>
 
 @code {
     [Parameter]
@@ -82,25 +98,49 @@
             att.UserId = userId;
             att.DocumentFlowId = Id;
             _documentFlowService.AttachUser(att);
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie dołączono użytkownika do przepływu",
+                Duration = 4000
+            });
             OnInitialized();
         }
     }
 
     private async Task DetachUser(int userId)
     {
-        bool? confirmed = await _dialogService.Confirm(
-            "Czy na pewno chcesz odłączyć użytkownika z flow?",
-            "Potwierdzenie",
-            new ConfirmOptions()
-            {
-                OkButtonText = "Tak",
-                CancelButtonText = "Nie",
-            }
-        );
+        if(_userService.CanDeleteUser(userId)) {
+            bool? confirmed = await _dialogService.Confirm(
+                "Czy na pewno chcesz odłączyć użytkownika z przepływu?",
+                "Potwierdzenie",
+                new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+            );
 
-        if(confirmed == true) {
-            _documentFlowService.DetachUser(Id, userId);
-            OnInitialized();
+            if(confirmed == true) {
+                _documentFlowService.DetachUser(Id, userId);
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie odłączono użytkownika od przepływu",
+                    Duration = 4000
+                });
+                OnInitialized();
+            }
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Nie można odłączyć użytkownika",
+                Detail = "Użytkownik posiada aktywne prośby o akceptację dokumentu.",
+                Duration = 4000
+            });
         }
     }
 
@@ -118,6 +158,13 @@
             att.UserId = userId;
             att.DocumentFlowId = Id;
             _documentFlowService.UpdateAttachedUserValue(att);
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Sukces",
+                Detail = "Pomyślnie zedytowno kryterium wartości",
+                Duration = 4000
+            });
             OnInitialized();
         }
     }

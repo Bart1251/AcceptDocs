@@ -2,14 +2,15 @@
 @inject IUserService _userService
 @inject IPositionLevelService _positionLevelService
 @inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
 
 <PageTitle>Dodaj użytkownika</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Dodawanie użytkownika</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Dodawanie użytkownika</RadzenText>
         <NavigationButton Path="user" />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
         <EditForm Model="@_user" OnValidSubmit="@SubmitUser">
@@ -50,7 +51,7 @@
             </RadzenRow>
         </EditForm>
     </RadzenCard>
-</div>
+</RadzenStack>
 
 
 
@@ -68,6 +69,13 @@
     private void SubmitUser()
     {
         _userService.Create(_user);
+        _notificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Sukces",
+            Detail = "Pomyślnie dodano użytkowanika",
+            Duration = 4000
+        });
         _navigationManager.NavigateTo("user");
     }
 }

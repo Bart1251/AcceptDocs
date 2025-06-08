@@ -3,12 +3,9 @@ using AcceptDocs.Domain.Exceptions;
 using AcceptDocs.Domain.Models;
 using AcceptDocs.SharedKernel.Dto;
 using AutoMapper;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 
@@ -61,7 +58,8 @@ namespace AcceptDocs.Application.Services
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.Login = dto.Login;
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            if(!string.IsNullOrEmpty(dto.Password))
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             user.PositionLevelId = dto.PositionLevelId;
             user.Position = dto.Position;
             _appUnitOfWork.Commit();
@@ -90,6 +88,11 @@ namespace AcceptDocs.Application.Services
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public bool CanDeleteUser(int id)
+        {
+            return _appUnitOfWork.UserRepository.CanDeleteUser(id);
         }
     }
 }

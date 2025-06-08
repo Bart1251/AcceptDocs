@@ -3,14 +3,16 @@
 
 @inject IDocumentService _documentService
 @inject CustomAuthStateProvider _authStateProvider
+@inject DialogService _dialogService
+@inject NotificationService _notificationService
 
 <PageTitle>Moje dokumenty</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Moje dokumenty</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Moje dokumenty</RadzenText>
         <NavigationButton Text="Stwórz nowy dokument" Path="document/add" />
-    </div>
+    </RadzenStack>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_documents" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <Columns>
@@ -41,16 +43,22 @@
             <RadzenDataGridColumn Property="CreatedAt" Title="Data utworzenia" />
             <RadzenDataGridColumn Title="Akcje" Width="100px" Sortable="false" Filterable="false">
                 <Template Context="document">
-                    @if(document.Status == DocumentStatusDto.Created || document.Status == DocumentStatusDto.Rejected) {
-                        <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
-                    } else {
-                        <NavigationButton Icon="info" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
-                    }
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="5px">
+                        @if (document.Status == DocumentStatusDto.Created || document.Status == DocumentStatusDto.Rejected)
+                        {
+                            <NavigationButton Icon="edit" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
+                            if(document.Status == DocumentStatusDto.Created) {
+                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => Delete(document.DocumentId))" />
+                            }
+                        } else {
+                            <NavigationButton Icon="info" Size="ButtonSize.Small" Path="@("document/details/" + document.DocumentId)" />
+                        }
+                    </RadzenStack>
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</div>
+</RadzenStack>
 
 @code {
     private List<DocumentDto> _documents = new();
@@ -59,5 +67,39 @@
     {
         await base.OnInitializedAsync();
         _documents = await _documentService.GetAllForUserWithTypeAndFlow(_authStateProvider.CurrentUserId??-1);
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirmed = await _dialogService.Confirm(
+            "Czy na pewno chcesz usunąć dokument?",
+            "Potwierdzenie",
+            new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+        );
+
+        if (confirmed == true) {
+            if (await _documentService.Delete(id)) {
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie usunięto dokument",
+                    Duration = 4000
+                });
+            } else {
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Wystąpił problem",
+                    Detail = "Nie udało się usunąć dokumentu",
+                    Duration = 4000
+                });
+            }
+            await OnInitializedAsync();
+        }
     }
 }

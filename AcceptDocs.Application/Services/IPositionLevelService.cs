@@ -9,5 +9,6 @@ namespace AcceptDocs.Application.Services
         void Delete(int id);
         void Update(PositionLevelDto dto);
         int Create(PositionLevelDto dto);
+        bool CanDelete(int id);
     }
 }

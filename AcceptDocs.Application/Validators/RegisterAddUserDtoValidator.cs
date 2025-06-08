@@ -23,8 +23,8 @@ namespace AcceptDocs.Application.Validators
             RuleFor(u => u.Login)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Login jest wymagany")
-                .MinimumLength(5).WithMessage("Wymagana długość loginu to 5-20 znaków")
-                .MaximumLength(20).WithMessage("Wymagana długość loginu to 5-20 znaków")
+                .MinimumLength(2).WithMessage("Wymagana długość loginu to 2-20 znaków")
+                .MaximumLength(20).WithMessage("Wymagana długość loginu to 2-20 znaków")
                 .Custom((value, context) => {
                     if (appUnitOfWork.UserRepository.IsLoginUsed(value))
                         context.AddFailure("Login", "Login jest już zajęty");

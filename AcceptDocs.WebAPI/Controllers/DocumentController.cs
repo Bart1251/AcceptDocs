@@ -2,6 +2,7 @@
 using AcceptDocs.SharedKernel.Dto;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Newtonsoft.Json;
@@ -40,15 +41,18 @@ namespace AcceptDocs.WebAPI.Controllers
                 return BadRequest();
             }
 
+            doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
+            doc.FileName = doc.FileName.Replace(':', '-');
+
             var dir = Directory.GetCurrentDirectory();
             var saveDirectory = Path.Combine(dir, "wwwroot", "documents");
             Directory.CreateDirectory(saveDirectory);
-            var filePath = Path.Combine(saveDirectory, file.FileName);
+            var filePath = Path.Combine(saveDirectory, doc.FileName);
 
-            if(new [] { ".doc", ".docx" }.Contains(Path.GetExtension(file.FileName.ToLowerInvariant()))) {
+            if(new [] { ".doc", ".docx" }.Contains(Path.GetExtension(doc.FileName.ToLowerInvariant()))) {
                 var previewDirectory = Path.Combine(dir, "wwwroot", "previews");
                 Directory.CreateDirectory(previewDirectory);
-                var previewPath = Path.Combine(previewDirectory, Path.GetFileNameWithoutExtension(file.FileName) + ".pdf");
+                var previewPath = Path.Combine(previewDirectory, Path.GetFileNameWithoutExtension(doc.FileName) + ".pdf");
                 using var ms = new MemoryStream();
                 file.CopyToAsync(ms);
                 ms.Position = 0;
@@ -62,9 +66,9 @@ namespace AcceptDocs.WebAPI.Controllers
                 file.CopyTo(stream);
             }
 
-            int id = _documentService.Create(doc);
-             
-            return CreatedAtAction(nameof(Get), new { id });
+            var created = _documentService.Create(doc);
+
+            return CreatedAtAction(nameof(Get), new { id = created.DocumentId }, created);
         }
 
         [HttpGet("{id}")]
@@ -72,7 +76,11 @@ namespace AcceptDocs.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Get(int id)
         {
-            return Ok(_documentService.GetWithDetails(id));
+            if (id < 1)
+                return BadRequest();
+            if(_documentService.GetWithDetails(id) is DocumentDto document)
+                return Ok(document);
+            return NotFound();
         }
 
         [HttpGet("user/{id}")]
@@ -117,6 +125,9 @@ namespace AcceptDocs.WebAPI.Controllers
                 return BadRequest(result);
             }
 
+            doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
+            doc.FileName = doc.FileName.Replace(':', '-');
+
             if (file != null) {
                 if (_documentService.Get(id) is DocumentDto old) {
                     string oldFileName = old.FileName;
@@ -132,12 +143,12 @@ namespace AcceptDocs.WebAPI.Controllers
                 var dir = Directory.GetCurrentDirectory();
                 var saveDirectory = Path.Combine(dir, "wwwroot", "documents");
                 Directory.CreateDirectory(saveDirectory);
-                var filePath = Path.Combine(saveDirectory, file.FileName);
+                var filePath = Path.Combine(saveDirectory, doc.FileName);
 
-                if (new[] { ".doc", ".docx" }.Contains(Path.GetExtension(file.FileName.ToLowerInvariant()))) {
+                if (new[] { ".doc", ".docx" }.Contains(Path.GetExtension(doc.FileName.ToLowerInvariant()))) {
                     var previewDirectory = Path.Combine(dir, "wwwroot", "previews");
                     Directory.CreateDirectory(previewDirectory);
-                    var previewPath = Path.Combine(previewDirectory, Path.GetFileNameWithoutExtension(file.FileName) + ".pdf");
+                    var previewPath = Path.Combine(previewDirectory, Path.GetFileNameWithoutExtension(doc.FileName) + ".pdf");
                     using var ms = new MemoryStream();
                     file.CopyToAsync(ms);
                     ms.Position = 0;

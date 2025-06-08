@@ -10,6 +10,16 @@ namespace AcceptDocs.Infrastructure.Repositories
         {
         }
 
+        public bool IsNameUsed(string name)
+        {
+            return _context.DocumentFlows.Any(u => u.Name == name);
+        }
+
+        public bool IsNameUsed(string name, int id)
+        {
+            return _context.DocumentFlows.Any(u => u.Name == name && u.DocumentFlowId != id);
+        }
+
         public List<DocumentFlow> GetAllWithUsers()
         {
             return _context.DocumentFlows.Include(df => df.DocumentFlowUsers).ThenInclude(dfu => dfu.User).ToList();
@@ -20,6 +30,7 @@ namespace AcceptDocs.Infrastructure.Repositories
             return _context.DocumentFlows
                 .Include(df => df.DocumentFlowUsers)
                     .ThenInclude(dfu => dfu.User)
+                        .ThenInclude(u => u.PositionLevel)
                 .FirstOrDefault(df => df.DocumentFlowId == id)?.DocumentFlowUsers.ToList()!;
         }
 

@@ -7,7 +7,7 @@ namespace AcceptDocs.SharedKernel.Dto
     {
         [Description("Utworzony")]
         Created,
-        [Description("Czekający na zaakceptowanie")]
+        [Description("W procesie akceptacji")]
         WaitingForApproval,
         [Description("Zaakceptowany")]
         Approved,

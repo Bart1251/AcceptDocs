@@ -16,6 +16,11 @@ namespace AcceptDocs.Application.Services
             _mapper = mapper;
         }
 
+        public bool CanDelete(int id)
+        {
+            return _appUnitOfWork.DocumentTypeRepository.CanDelete(id);
+        }
+
         public int Create(DocumentTypeDto dto)
         {
             var documentType = _mapper.Map<DocumentType>(dto);

@@ -1,14 +1,15 @@
 ﻿@page "/documentType"
 @inject IDocumentTypeService _documentTypeService
 @inject DialogService _dialogService
+@inject NotificationService _notificationService
 
 <PageTitle>Typy dokumentów</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Typy dokumentów</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Typy dokumentów</RadzenText>
         <NavigationButton Text="Dodaj typ dokumentu" Path="documentType/add" />
-    </div>
+    </RadzenStack>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_documentTypes" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <Columns>
@@ -24,7 +25,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</div>
+</RadzenStack>
 
 @code {
     private List<DocumentTypeDto> _documentTypes = new();
@@ -37,19 +38,36 @@
 
     private async Task Delete(int id)
     {
-        bool? confirmed = await _dialogService.Confirm(
-            "Czy na pewno chcesz usunąć typ dokumentu?",
-            "Potwierdzenie",
-            new ConfirmOptions()
-                {
-                    OkButtonText = "Tak",
-                    CancelButtonText = "Nie",
-                }
-        );
+        if(_documentTypeService.CanDelete(id)) {
+            bool? confirmed = await _dialogService.Confirm(
+                "Czy na pewno chcesz usunąć typ dokumentu?",
+                "Potwierdzenie",
+                new ConfirmOptions()
+                    {
+                        OkButtonText = "Tak",
+                        CancelButtonText = "Nie",
+                    }
+            );
 
-        if (confirmed == true) {
-            _documentTypeService.Delete(id);
-            OnInitialized();
+            if (confirmed == true) {
+                _documentTypeService.Delete(id);
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie usunięto typ dokumentu",
+                    Duration = 4000
+                });
+                OnInitialized();
+            }
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Nie można usunąć typu dokumentu",
+                Detail = "Istnieją dokumenty z przypisanym typem usuń je lub zmodyfikuj zanim usuniesz typ.",
+                Duration = 4000
+            });
         }
     }
 }

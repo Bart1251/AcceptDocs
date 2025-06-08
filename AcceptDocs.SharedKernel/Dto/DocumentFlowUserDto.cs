@@ -6,6 +6,7 @@
         public string FirstName { get; set; } = String.Empty;
         public string LastName { get; set; } = String.Empty;
         public string Position { get; set; } = String.Empty;
+        public string PositionLevel { get; set; } = String.Empty;
         public decimal Value { get; set; }
     }
 }

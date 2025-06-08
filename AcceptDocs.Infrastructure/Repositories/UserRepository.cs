@@ -31,5 +31,13 @@ namespace AcceptDocs.Infrastructure.Repositories
         {
             return _context.Users.Include(u => u.PositionLevel).Where(u => u.UserId == id).FirstOrDefault()!;
         }
+
+        public bool CanDeleteUser(int id)
+        {
+            var user = _context.Users.Include(u => u.AcceptanceRequests).FirstOrDefault(u => u.UserId == id);
+            if (user == null)
+                return true;
+            return user.AcceptanceRequests.Count(ar => ar.AcceptanceRequestStatus == AcceptanceRequestStatus.NotAnswered) == 0;
+        }
     }
 }

@@ -1,14 +1,15 @@
 ﻿@page "/user"
 @inject IUserService _userService
 @inject DialogService _dialogService
+@inject NotificationService _notificationService
 
 <PageTitle>Użytkownicy</PageTitle>
 
-<div class="d-flex flex-column gap-3">
-    <div class="d-flex gap-3">
-        <h3>Użytkownicy</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Użytkownicy</RadzenText>
         <NavigationButton Text="Dodaj użytkownika" Path="user/add" />
-    </div>
+    </RadzenStack>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_users" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <Columns>
@@ -32,7 +33,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</div>
+</RadzenStack>
 
 @code {
     private List<UserDto> _users = new();
@@ -45,19 +46,36 @@
 
     private async Task Delete(int id)
     {
-        bool? confirmed = await _dialogService.Confirm(
-            "Czy na pewno chcesz usunąć użytkownika?",
-            "Potwierdzenie",
-            new ConfirmOptions()
-            {
-                OkButtonText = "Tak",
-                CancelButtonText = "Nie",
-            }
-        );
+        if (_userService.CanDeleteUser(id)) {
+            bool? confirmed = await _dialogService.Confirm(
+                "Czy na pewno chcesz usunąć użytkownika?",
+                "Potwierdzenie",
+                new ConfirmOptions()
+                {
+                    OkButtonText = "Tak",
+                    CancelButtonText = "Nie",
+                }
+            );
 
-        if(confirmed == true) {
-            _userService.Delete(id);
-            OnInitialized();
+            if (confirmed == true) {
+                _userService.Delete(id);
+                _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Pomyślnie usunięto użytkownika",
+                    Duration = 4000
+                });
+                OnInitialized();
+            }
+        } else {
+            _notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Nie można usunąć użytkownika",
+                Detail = "Użytkownik posiada aktywne prośby o akceptację dokumentu.",
+                Duration = 4000
+            });
         }
     }
 }

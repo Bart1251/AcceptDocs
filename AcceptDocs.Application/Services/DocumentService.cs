@@ -16,7 +16,7 @@ namespace AcceptDocs.Application.Services
             _mapper = mapper;
         }
 
-        public int Create(AddDocumentDto dto)
+        public Document Create(AddDocumentDto dto)
         {
             var document = _mapper.Map<Document>(dto);
             Document dbDoc = _appUnitOfWork.DocumentRepository.Insert(document);
@@ -55,7 +55,7 @@ namespace AcceptDocs.Application.Services
                 }
             }
             _appUnitOfWork.Commit();
-            return dbDoc.DocumentId;
+            return dbDoc;
         }
 
         public void Delete(int id)

@@ -23,6 +23,7 @@ namespace AcceptDocs.Application.Mappings
             CreateMap<DocumentFlowUser, DocumentFlowUserDto>()
                 .ForMember(m => m.FirstName, c => c.MapFrom(s => s.User.FirstName))
                 .ForMember(m => m.LastName, c => c.MapFrom(s => s.User.LastName))
+                .ForMember(m => m.PositionLevel, c => c.MapFrom(s => s.User.PositionLevel.Name))
                 .ForMember(m => m.Position, c => c.MapFrom(s => s.User.Position));
             CreateMap<Document, DocumentDto>().ReverseMap();
             CreateMap<AddDocumentDto, Document>()

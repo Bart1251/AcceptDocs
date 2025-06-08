@@ -13,11 +13,11 @@
     <RadzenCard>
         <EditForm Model="@_loginData" OnValidSubmit="@LoginUser">
             <RadzenStack AlignItems="AlignItems.Stretch">
-                <h3>Zaloguj się do systemu</h3>
+                <RadzenText TextStyle="TextStyle.H5">Zaloguj się do systemu</RadzenText>
                 <RadzenFormField Text="Login">
                     <RadzenTextBox @bind-Value="@_loginData.Login"/>
                 </RadzenFormField>
-                <RadzenFormField Text="Password">
+                <RadzenFormField Text="Hasło">
                     <RadzenPassword @bind-Value="@_loginData.Password" />
                 </RadzenFormField>
                 <RadzenButton Text="Zaloguj" ButtonType="ButtonType.Submit"/>

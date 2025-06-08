@@ -1,14 +1,15 @@
 ﻿@page "/flow/update/{id:int}"
 @inject IDocumentFlowService _documentFlowService
 @inject NavigationHelper _navigationHelper
+@inject NotificationService _notificationService
 
-<PageTitle>Edytuj flow dokumentów</PageTitle>
+<PageTitle>Edytuj przepływ dokumentów</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Edycja flow dokumentów</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Edycja przepływu dokumentów</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
         <EditForm Model="@_flow" OnValidSubmit="@SubmitFlow">
@@ -37,7 +38,7 @@
             </RadzenStack>
         </EditForm>
     </RadzenCard>
-</div>
+</RadzenStack>
 
 
 
@@ -65,6 +66,13 @@
     private async Task SubmitFlow()
     {
         _documentFlowService.Update(_flow);
+        _notificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Sukces",
+            Detail = "Pomyślnie zedytowano przepływ",
+            Duration = 4000
+        });
         await _navigationHelper.GoBackAsync();
     }
 }

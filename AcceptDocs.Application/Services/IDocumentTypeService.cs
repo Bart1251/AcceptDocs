@@ -9,5 +9,6 @@ namespace AcceptDocs.Application.Services
         void Delete(int id);
         void Update(DocumentTypeDto dto);
         int Create(DocumentTypeDto dto);
+        bool CanDelete(int id);
     }
 }

@@ -32,6 +32,7 @@ namespace AcceptDocs.Application.Services
         {
             var acceptanceRequest = _appUnitOfWork.AcceptanceRequestRepository.GetWithDetails(dto.AcceptanceRequestId);
             acceptanceRequest.Feedback = dto.Feedback;
+            acceptanceRequest.StatusChangedAt = DateTime.Now;
             acceptanceRequest.AcceptanceRequestStatus = dto.IsDocumentValid ? AcceptanceRequestStatus.Accepted : AcceptanceRequestStatus.Rejected;
             _appUnitOfWork.Commit();
             if (!dto.IsDocumentValid) {

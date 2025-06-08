@@ -4,11 +4,14 @@
 <EditForm Model="@AttachmentModel" OnValidSubmit="@Save">
     <RadzenStack Gap="5px">
         <RadzenFormField Text="Kryterium wartości">
-            <RadzenNumeric Min="0" Max="@decimal.MaxValue" @bind-Value="@AttachmentModel.Value" />
+            <ChildContent>
+                <RadzenNumeric Min="0" Max="@decimal.MaxValue" @bind-Value="@AttachmentModel.Value" Format="N2"/>
+            </ChildContent>
+            <End>zł</End>
         </RadzenFormField>
         <RadzenStack Gap="5px" Orientation="Orientation.Horizontal">
             <RadzenButton ButtonType="ButtonType.Submit" Text="Zapisz" />
-            <RadzenButton Text="Anuluj" Click="@CloseDialog" ButtonStyle="ButtonStyle.Secondary" />
+            <RadzenButton Text="Anuluj" Click="@CloseDialog" ButtonStyle="ButtonStyle.Base" />
         </RadzenStack>
     </RadzenStack>
 </EditForm>

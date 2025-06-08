@@ -1,14 +1,15 @@
 ﻿@page "/documentType/add"
 @inject IDocumentTypeService _documentTypeService
 @inject NavigationHelper _navigationHelper
+@inject NotificationService _notificationService
 
 <PageTitle>Dodaj typ dokumentu</PageTitle>
 
-<div class="d-flex flex-column gap-3 mx-3">
-    <div class="d-flex gap-3">
-        <h3>Dodawanie typu dokumentu</h3>
+<RadzenStack Gap="1rem" class="mx-3 mb-3">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenText TextStyle="TextStyle.H5">Dodawanie typu dokumentu</RadzenText>
         <NavigationButton />
-    </div>
+    </RadzenStack>
 
     <RadzenCard>
         <EditForm Model="@_documentType" OnValidSubmit="@SubmitDocumentType">
@@ -29,7 +30,7 @@
             </RadzenStack>
         </EditForm>
     </RadzenCard>
-</div>
+</RadzenStack>
 
 
 
@@ -40,6 +41,13 @@
     private async Task SubmitDocumentType()
     {
         _documentTypeService.Create(_documentType);
+        _notificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Sukces",
+            Detail = "Pomyślnie utworzono typ dokumentu",
+            Duration = 4000
+        });
         await _navigationHelper.GoBackAsync();
     }
 }

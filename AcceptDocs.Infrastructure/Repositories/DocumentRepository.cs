@@ -14,7 +14,9 @@ namespace AcceptDocs.Infrastructure.Repositories
         {
             return _context.Documents.Where(d => d.UserId == userId)
                 .Include(d => d.DocumentType)
-                .Include(d => d.DocumentFlow).ToList();
+                .Include(d => d.DocumentFlow)
+                .OrderByDescending(d => d.CreatedAt)
+                .ToList();
         }
 
         public Document GetWithDetails(int id)

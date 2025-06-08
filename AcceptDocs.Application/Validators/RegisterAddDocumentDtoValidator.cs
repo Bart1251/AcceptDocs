@@ -11,14 +11,14 @@ namespace AcceptDocs.Application.Validators
             RuleFor(d => d.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Nazwa jest wymagana")
-                .MinimumLength(5).WithMessage("Wymagana długość nazwy to 5-50 znaków")
-                .MaximumLength(500).WithMessage("Wymagana długość nazwy to 5-50 znaków");
+                .MinimumLength(2).WithMessage("Wymagana długość nazwy to 2-50 znaków")
+                .MaximumLength(500).WithMessage("Wymagana długość nazwy to 2-50 znaków");
 
             RuleFor(d => d.Description)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Opis jest wymagany")
-                .MinimumLength(5).WithMessage("Wymagana długość opisu to 5-500 znaków")
-                .MaximumLength(500).WithMessage("Wymagana długość opisu to 5-500 znaków");
+                .MinimumLength(2).WithMessage("Wymagana długość opisu to 2-500 znaków")
+                .MaximumLength(500).WithMessage("Wymagana długość opisu to 2-500 znaków");
 
             RuleFor(d => d.Value)
                 .Cascade(CascadeMode.Stop)
@@ -27,9 +27,9 @@ namespace AcceptDocs.Application.Validators
 
             RuleFor(d => d.FileName)
                 .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Dokument jest wymagany")
-                .Must(f => HasValidExtension(f)).WithMessage("Niedozwolone rozszerzenie dokumentu. Dozwolone: .pdf, .jpg, .png, .docx, .doc")
-                .Must(f => f.Length <= 100).WithMessage("Nazwa dokumentu jest zbyt długa (max 100 znaków).");
+                .NotEmpty().WithMessage("Załącznik jest wymagany")
+                .Must(f => HasValidExtension(f)).WithMessage("Niedozwolone rozszerzenie załącznika. Dozwolone: .pdf, .jpg, .png, .docx, .doc")
+                .Must(f => f.Length <= 100).WithMessage("Nazwa załącznika jest zbyt długa (max 100 znaków).");
 
             RuleFor(d => d.DocumentTypeId)
                 .Cascade(CascadeMode.Stop)
@@ -42,7 +42,7 @@ namespace AcceptDocs.Application.Validators
             RuleFor(d => d.DocumentFlowId)
                 .Custom((value, context) => {
                     if (appUnitOfWork.DocumentFlowRepository.Get(value??-1) is null && value is not null)
-                        context.AddFailure("DocumentFlowId", "Ten flow dokumentu nie istnieje");
+                        context.AddFailure("DocumentFlowId", "Ten przepływ nie istnieje");
                 });
         }
 
