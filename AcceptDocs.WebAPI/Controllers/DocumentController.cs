@@ -43,6 +43,7 @@ namespace AcceptDocs.WebAPI.Controllers
 
             doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
             doc.FileName = doc.FileName.Replace(':', '-');
+            doc.FileName = doc.FileName.Replace('/', '-');
 
             var dir = Directory.GetCurrentDirectory();
             var saveDirectory = Path.Combine(dir, "wwwroot", "documents");
@@ -139,6 +140,7 @@ namespace AcceptDocs.WebAPI.Controllers
 
                 doc.FileName = Path.GetFileNameWithoutExtension(doc.FileName) + "_" + DateTime.Now + Path.GetExtension(doc.FileName);
                 doc.FileName = doc.FileName.Replace(':', '-');
+                doc.FileName = doc.FileName.Replace('/', '-');
 
                 var dir = Directory.GetCurrentDirectory();
                 var saveDirectory = Path.Combine(dir, "wwwroot", "documents");

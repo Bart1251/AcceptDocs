@@ -21,7 +21,7 @@ namespace AcceptDocs.WebAPI
     {
         public static void Main(string[] args)
         {
-            var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+            var logger = LogManager.Setup().LoadConfigurationFromFile(Path.Combine(Directory.GetCurrentDirectory(), "../Log/nlog.config")).GetCurrentClassLogger();
             logger.Debug("init main");
 
             try {

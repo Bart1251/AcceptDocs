@@ -18,6 +18,12 @@ namespace AcceptDocs.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.DocumentFlow)
+                .WithMany(df => df.Documents)
+                .HasForeignKey(d => d.DocumentFlowId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
